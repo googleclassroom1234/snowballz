@@ -1,0 +1,2349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#000000">
+
+    <title>Snowballz · Holiday GameVault</title>
+
+    <meta name="description" content="Play holiday browser games on Snowballz. Cozy winter vibes, live players, and instant play.">
+    <meta name="keywords" content="Snowballz, games, browser games, holiday games, winter games">
+    <meta name="author" content="Snowballz">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* =========================================================
+           SNOWBALLZ
+           CHRISTMAS MONOCHROME EDITION
+           ========================================================= */
+
+        :root {
+            --bg: #000000;
+            --bg-2: #0a0a0a;
+            --bg-3: #141414;
+
+            --panel: rgba(12, 12, 12, 0.88);
+            --panel-2: rgba(20, 20, 20, 0.94);
+
+            --border: rgba(255, 255, 255, 0.16);
+            --border-hover: rgba(255, 255, 255, 0.42);
+
+            --text: #ffffff;
+            --text-2: #cccccc;
+            --text-3: #888888;
+
+            --accent: #ffffff;
+            --accent-2: #e0e0e0;
+            --accent-soft: rgba(255, 255, 255, 0.12);
+
+            --white: #ffffff;
+            --black: #000000;
+
+            --radius: 18px;
+            --radius-small: 12px;
+
+            --nav-height: 72px;
+            --sidebar-width: 300px;
+
+            --shadow: 0 20px 60px rgba(0, 0, 0, 0.88);
+        }
+
+        /* =========================================================
+           KEYFRAME ANIMATIONS
+           ========================================================= */
+
+        @keyframes gridDrift {
+            0% { background-position: 0 0; }
+            100% { background-position: 48px 48px; }
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(45px, -35px) scale(1.08); }
+            66% { transform: translate(-30px, 25px) scale(0.95); }
+        }
+
+        @keyframes pulseRing {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.75); }
+            70% { box-shadow: 0 0 0 9px rgba(255, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
+
+        @keyframes shimmerText {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes borderSweep {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes cardPopIn {
+            0% {
+                opacity: 0;
+                transform: translateY(24px) scale(0.94);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
+        }
+
+        @keyframes modalSpring {
+            0% {
+                opacity: 0;
+                transform: scale(0.88) translateY(16px);
+            }
+            70% {
+                opacity: 1;
+                transform: scale(1.02) translateY(-2px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        @keyframes floatSnowflake {
+            0% { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(105vh) translateX(40px) rotate(360deg); opacity: 0; }
+        }
+
+        /* =========================================================
+           RESET
+           ========================================================= */
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            background: var(--bg);
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Inter, Arial, sans-serif;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        button {
+            color: inherit;
+        }
+
+        img {
+            max-width: 100%;
+        }
+
+        .material-icons {
+            font-size: 20px;
+            vertical-align: middle;
+        }
+
+        /* =========================================================
+           SCROLL REVEAL UTILITY
+           ========================================================= */
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* =========================================================
+           BACKGROUND & GIF WALLPAPER LAYER
+           ========================================================= */
+
+        .bg-stage {
+            position: fixed;
+            inset: 0;
+            z-index: -5;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .wallpaper-layer {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.22;
+            filter: grayscale(100%) contrast(120%) brightness(50%);
+        }
+
+        #particleCanvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.55;
+        }
+
+        .grid-bg {
+            position: absolute;
+            inset: 0;
+            opacity: 0.25;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 48px 48px;
+            animation: gridDrift 20s linear infinite;
+            mask-image: linear-gradient(to bottom, black, transparent 85%);
+            -webkit-mask-image: linear-gradient(to bottom, black, transparent 85%);
+        }
+
+        .scanline {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+            animation: scanline 9s linear infinite;
+        }
+
+        .glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            top: -300px;
+            left: -180px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            filter: blur(110px);
+            animation: orbFloat 14s ease-in-out infinite;
+        }
+
+        .glow.b {
+            top: 40%;
+            left: auto;
+            right: -350px;
+            background: rgba(255, 255, 255, 0.06);
+            animation-delay: -6s;
+        }
+
+        /* =========================================================
+           NAVIGATION
+           ========================================================= */
+
+        .nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: var(--nav-height);
+            border-bottom: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+        }
+
+        .nav-inner {
+            width: min(1500px, calc(100% - 36px));
+            height: 100%;
+            margin: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .brand-mark {
+            width: 36px;
+            height: 36px;
+            border-radius: 11px;
+            display: grid;
+            place-items: center;
+            background: #ffffff;
+            color: #000000;
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.25);
+            overflow: hidden;
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .brand:hover .brand-mark {
+            transform: rotate(-10deg) scale(1.1);
+        }
+
+        .brand-name {
+            font-family: "Space Grotesk", sans-serif;
+            font-weight: 700;
+            font-size: 20px;
+            letter-spacing: -0.5px;
+            color: var(--white);
+        }
+
+        .brand-tag {
+            padding: 3px 7px;
+            border-radius: 6px;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            font-weight: 700;
+            background: var(--white);
+            color: var(--black);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: 28px;
+        }
+
+        .nav-link {
+            position: relative;
+            color: var(--text-2);
+            padding: 8px 11px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .nav-link::after {
+            content: "";
+            position: absolute;
+            left: 11px;
+            right: 11px;
+            bottom: 4px;
+            height: 1.5px;
+            background: #ffffff;
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .nav-link:hover {
+            color: var(--white);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .nav-link.active {
+            color: var(--white);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .nav-spacer {
+            flex: 1;
+        }
+
+        /* SEARCH */
+
+        .nav-search {
+            height: 38px;
+            width: 230px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 10px;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            color: var(--text-3);
+            transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .nav-search:focus-within {
+            width: 270px;
+            border-color: var(--white);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.14);
+        }
+
+        .nav-search input {
+            width: 100%;
+            border: 0;
+            outline: 0;
+            background: transparent;
+            color: var(--white);
+            font-size: 12px;
+        }
+
+        .nav-search input::placeholder {
+            color: var(--text-3);
+        }
+
+        .kbd {
+            font-size: 10px;
+            color: var(--text-3);
+            white-space: nowrap;
+            border: 1px solid var(--border);
+            padding: 1px 5px;
+            border-radius: 4px;
+        }
+
+        /* ICON BUTTON */
+
+        .icon-btn {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border: 1px solid transparent;
+            background: transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--text-2);
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        .icon-btn:hover {
+            color: var(--white);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--border);
+            transform: scale(1.08);
+        }
+
+        .icon-btn:active {
+            transform: scale(0.94);
+        }
+
+        .mobile-btn {
+            display: none;
+        }
+
+        /* =========================================================
+           MAIN
+           ========================================================= */
+
+        .shell {
+            width: min(1500px, calc(100% - 36px));
+            margin: auto;
+            padding: 25px 0 70px;
+        }
+
+        /* =========================================================
+           DAY BAR
+           ========================================================= */
+
+        .daybar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding: 13px 17px;
+            margin-bottom: 18px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.03);
+            transition: border-color 0.3s;
+        }
+
+        .daybar:hover {
+            border-color: var(--border-hover);
+        }
+
+        .day-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .day-today {
+            color: var(--white);
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .day-date {
+            color: var(--text-3);
+            font-size: 11px;
+        }
+
+        .day-right {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            color: var(--text-3);
+            font-size: 10px;
+            text-align: right;
+            flex-wrap: wrap;
+        }
+
+        .schedule-live,
+        .weather-live {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 8px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            white-space: nowrap;
+        }
+
+        .schedule-live .material-icons,
+        .weather-live .material-icons {
+            font-size: 14px;
+            color: var(--white);
+        }
+
+        .schedule-period,
+        .weather-temp {
+            color: var(--white);
+            font-weight: 700;
+        }
+
+        .schedule-countdown {
+            color: var(--text-2);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .weather-description {
+            color: var(--text-3);
+        }
+
+        /* =========================================================
+           HERO
+           ========================================================= */
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            min-height: 410px;
+            padding: 52px;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            background:
+                radial-gradient(circle at 88% 18%, rgba(255, 255, 255, 0.14), transparent 32%),
+                linear-gradient(135deg, #161616, #050505);
+            box-shadow: var(--shadow);
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(
+                from 0deg at 50% 50%,
+                transparent 0deg,
+                rgba(255, 255, 255, 0.05) 60deg,
+                transparent 120deg
+            );
+            animation: borderSweep 18s linear infinite;
+            pointer-events: none;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            right: -190px;
+            bottom: -300px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            filter: blur(80px);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--white);
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.4px;
+            margin-bottom: 16px;
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--white);
+            animation: pulseRing 2s infinite;
+        }
+
+        .hero-title {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: clamp(52px, 8vw, 90px);
+            line-height: 0.92;
+            letter-spacing: -4.5px;
+            margin-bottom: 25px;
+            color: var(--white);
+        }
+
+        .hero-title span {
+            display: block;
+            background: linear-gradient(90deg, #666666, #ffffff, #888888, #ffffff);
+            background-size: 250% 250%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: shimmerText 6s ease infinite;
+        }
+
+        /* =========================================================
+           HERO ACTIONS (MAGNETIC BUTTONS)
+           ========================================================= */
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .action {
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 42px;
+            padding: 0 16px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-2);
+            font-size: 11px;
+            font-weight: 700;
+            transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+                        background 0.2s,
+                        color 0.2s,
+                        border-color 0.2s;
+            cursor: pointer;
+        }
+
+        .action:hover {
+            color: var(--white);
+            border-color: var(--white);
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        .action.primary {
+            background: var(--white);
+            border-color: var(--white);
+            color: var(--black);
+        }
+
+        .action.primary:hover {
+            background: #e5e5e5;
+            color: var(--black);
+        }
+
+        .action .material-icons {
+            font-size: 17px;
+        }
+
+        /* =========================================================
+           STATS
+           ========================================================= */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 180px);
+            gap: 10px;
+            margin-top: 34px;
+        }
+
+        .stat {
+            padding: 15px 17px;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            background: rgba(255, 255, 255, 0.04);
+            transition: transform 0.25s ease, border-color 0.25s ease;
+        }
+
+        .stat:hover {
+            transform: translateY(-3px);
+            border-color: var(--white);
+        }
+
+        .stat-number {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 27px;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .stat-label {
+            margin-top: 2px;
+            color: var(--text-3);
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+        }
+
+        /* =========================================================
+           SECTIONS
+           ========================================================= */
+
+        .section {
+            margin-top: 45px;
+        }
+
+        .section-head {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 17px;
+        }
+
+        .section-title {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 25px;
+            letter-spacing: -0.7px;
+            color: var(--white);
+        }
+
+        .section-sub {
+            color: var(--text-3);
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        .section-link {
+            color: var(--white);
+            font-size: 10px;
+            font-weight: 700;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        /* =========================================================
+           COMMUNITY
+           ========================================================= */
+
+        .community-grid {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .feature {
+            position: relative;
+            min-height: 135px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        border-color 0.25s,
+                        background 0.25s;
+        }
+
+        .feature:hover {
+            transform: translateY(-6px);
+            border-color: var(--white);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .feature-icon {
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            background: var(--white);
+            color: var(--black);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .feature:hover .feature-icon {
+            transform: scale(1.12) rotate(6deg);
+        }
+
+        .feature-icon .material-icons {
+            font-size: 18px;
+        }
+
+        .feature-name {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .feature-desc {
+            color: var(--text-3);
+            font-size: 9px;
+            line-height: 1.45;
+            margin-top: 3px;
+        }
+
+        .new {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 3px 6px;
+            border-radius: 5px;
+            background: var(--white);
+            color: var(--black);
+            font-size: 7px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* =========================================================
+           QUICK LINKS
+           ========================================================= */
+
+        .quick-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .quick-link {
+            padding: 8px 11px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-2);
+            font-size: 9px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        .quick-link:hover {
+            color: var(--black);
+            border-color: var(--white);
+            background: var(--white);
+            transform: translateY(-2px);
+        }
+
+        /* =========================================================
+           CHRISTMAS CHALLENGE
+           ========================================================= */
+
+        .challenge {
+            position: relative;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
+            gap: 20px;
+            padding: 27px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 18px;
+            background:
+                radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.12), transparent 40%),
+                rgba(255, 255, 255, 0.03);
+            transition: border-color 0.3s;
+        }
+
+        .challenge:hover {
+            border-color: var(--white);
+        }
+
+        .challenge-label {
+            color: var(--white);
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .challenge-title {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 27px;
+            letter-spacing: -0.7px;
+            color: var(--white);
+        }
+
+        .challenge-sub {
+            color: var(--text-3);
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        .race-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 7px;
+            margin-top: 20px;
+        }
+
+        .race-stat {
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .race-label {
+            color: var(--text-3);
+            font-size: 8px;
+        }
+
+        .race-value {
+            margin-top: 2px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .challenge-side {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .ends {
+            color: var(--text-3);
+            font-size: 9px;
+            text-align: right;
+        }
+
+        .timer {
+            font-family: monospace;
+            font-size: 14px;
+            color: var(--white);
+            margin-top: 2px;
+        }
+
+        .challenge-actions {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .small-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 9px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-2);
+            font-size: 9px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        .small-btn:hover {
+            color: var(--white);
+            border-color: var(--white);
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .small-btn.primary {
+            background: var(--white);
+            border-color: var(--white);
+            color: var(--black);
+        }
+
+        .small-btn.primary:hover {
+            background: #e0e0e0;
+            color: var(--black);
+        }
+
+        /* =========================================================
+           NEWEST / FRIENDS
+           ========================================================= */
+
+        .feed {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 280px;
+            gap: 15px;
+        }
+
+        .feed-card {
+            padding: 18px;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            transition: border-color 0.25s;
+        }
+
+        .feed-card:hover {
+            border-color: var(--border-hover);
+        }
+
+        .feed-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .feed-title {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .feed-time {
+            color: var(--text-3);
+            font-size: 9px;
+        }
+
+        .feed-body {
+            margin-top: 12px;
+            color: var(--text-2);
+            font-size: 11px;
+        }
+
+        .feed-body strong {
+            color: var(--white);
+        }
+
+        .feed-action {
+            display: inline-block;
+            margin-top: 12px;
+            color: var(--white);
+            font-size: 10px;
+            font-weight: 700;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        /* =========================================================
+           GAME LIBRARY (3D TILT + STAGGERED ENTRANCE)
+           ========================================================= */
+
+        .games-header {
+            margin-bottom: 22px;
+            text-align: center;
+        }
+
+        .games-header h1 {
+            margin: 0;
+            color: var(--white);
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .games-header p {
+            margin: 7px 0 12px;
+            color: var(--text-3);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .games-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 22px;
+        }
+
+        .chips {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .chip {
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-2);
+            padding: 7px 14px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: 600;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        .chip:hover {
+            color: var(--white);
+            border-color: var(--border-hover);
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .chip.active {
+            color: var(--black);
+            border-color: var(--white);
+            background: var(--white);
+        }
+
+        .sort {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .sort select {
+            border: 1px solid var(--border);
+            outline: none;
+            border-radius: 9px;
+            background: var(--bg-3);
+            color: var(--white);
+            padding: 8px 12px;
+            font-size: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .sort select:hover {
+            border-color: var(--white);
+        }
+
+        #games {
+            display: grid;
+            grid-template-columns: repeat(6, 182px);
+            gap: 22px 18px;
+            justify-content: center;
+            width: 100%;
+            perspective: 1000px;
+        }
+
+        .game-card {
+            width: 182px;
+            min-width: 0;
+            position: relative;
+            opacity: 0;
+            animation: cardPopIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation-delay: calc(var(--i, 0) * 45ms);
+            transform-style: preserve-3d;
+            transition: transform 0.15s ease-out;
+        }
+
+        .game-card a {
+            display: block;
+            position: relative;
+            width: 182px;
+            height: 182px;
+            text-decoration: none;
+        }
+
+        .game-thumb {
+            width: 182px;
+            height: 182px;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #1b1b1b, #080808);
+            border: 1px solid var(--border);
+            position: relative;
+            transition: border-color 0.25s, box-shadow 0.25s;
+        }
+
+        .card-glare {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.25), transparent 65%);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .game-card:hover .card-glare {
+            opacity: 1;
+        }
+
+        .game-card:hover .game-thumb {
+            border-color: var(--white);
+            box-shadow: 0 18px 36px rgba(255, 255, 255, 0.14);
+        }
+
+        .game-thumb .material-icons {
+            font-size: 38px;
+            color: var(--white);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .game-card:hover .game-thumb .material-icons {
+            transform: scale(1.18) translateZ(20px);
+        }
+
+        .game-name {
+            position: absolute;
+            right: 9px;
+            bottom: 8px;
+            z-index: 2;
+            display: block;
+            max-width: calc(100% - 18px);
+            margin: 0;
+            padding: 5px 8px;
+            border-radius: 7px;
+            background: rgba(0, 0, 0, 0.88);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--white);
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.2;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            backdrop-filter: blur(4px);
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .game-card:hover .game-name {
+            background: var(--white);
+            color: var(--black);
+        }
+
+        .live-badge {
+            position: absolute;
+            top: 9px;
+            left: 9px;
+            z-index: 4;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 7px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-size: 9px;
+            font-weight: 700;
+            backdrop-filter: blur(4px);
+        }
+
+        .live-badge .pulse-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #ffffff;
+            animation: pulseRing 2s infinite;
+        }
+
+        .loading {
+            grid-column: 1 / -1;
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--text-3);
+            border: 1px dashed var(--border);
+            border-radius: 14px;
+        }
+
+        /* =========================================================
+           SNOWFLAKE FALLING PARTICLES
+           ========================================================= */
+
+        .snowflake {
+            position: fixed;
+            top: -20px;
+            background: #ffffff;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.8;
+            animation: floatSnowflake linear infinite;
+        }
+
+        /* =========================================================
+           MOBILE SIDEBAR
+           ========================================================= */
+
+        .sidenav {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            pointer-events: none;
+        }
+
+        .sidenav-panel {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            transform: translateX(-105%);
+            transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+            background: #080808;
+            border-right: 1px solid var(--border);
+            box-shadow: 30px 0 80px rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .sidenav.open {
+            pointer-events: auto;
+        }
+
+        .sidenav.open .sidenav-panel {
+            transform: translateX(0);
+        }
+
+        .sidenav-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.72);
+            opacity: 0;
+            transition: opacity 0.28s;
+            pointer-events: none;
+        }
+
+        .sidenav.open .sidenav-backdrop {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .side-head {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .side-nav {
+            padding: 15px;
+            display: grid;
+            gap: 5px;
+        }
+
+        .side-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px;
+            border-radius: 9px;
+            color: var(--text-2);
+            font-size: 12px;
+            transition: 0.2s;
+        }
+
+        .side-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+        }
+
+        .side-link .material-icons {
+            font-size: 18px;
+        }
+
+        /* =========================================================
+           SURPRISE MODAL & TOAST
+           ========================================================= */
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            display: none;
+            place-items: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+        }
+
+        .modal.show {
+            display: grid;
+        }
+
+        .modal-card {
+            width: min(520px, 100%);
+            padding: 24px;
+            border: 1px solid var(--border-hover);
+            border-radius: 18px;
+            background: #0a0a0a;
+            box-shadow: var(--shadow);
+            animation: modalSpring 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .modal-title {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 20px;
+            color: var(--white);
+        }
+
+        .suggestion-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .suggestion {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.04);
+            transition: 0.2s;
+        }
+
+        .suggestion:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--white);
+            transform: translateX(4px);
+        }
+
+        .suggestion-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .suggestion-meta {
+            color: var(--text-3);
+            font-size: 9px;
+            margin-top: 2px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 4000;
+            padding: 12px 18px;
+            border-radius: 10px;
+            background: var(--white);
+            color: var(--black);
+            font-size: 12px;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            transform: translateY(120%);
+            opacity: 0;
+            transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* =========================================================
+           FOOTER
+           ========================================================= */
+
+        .footer {
+            margin-top: 60px;
+            padding: 24px 0;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            color: var(--text-3);
+            font-size: 10px;
+        }
+
+        /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+        @media (max-width: 1250px) {
+            #games {
+                grid-template-columns: repeat(5, 182px);
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .community-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 1030px) {
+            #games {
+                grid-template-columns: repeat(4, 182px);
+            }
+        }
+
+        @media (max-width: 830px) {
+            #games {
+                grid-template-columns: repeat(3, 182px);
+            }
+        }
+
+        @media (max-width: 800px) {
+            .nav-links {
+                display: none;
+            }
+
+            .nav-search {
+                width: 170px;
+            }
+
+            .mobile-btn {
+                display: grid;
+            }
+
+            .hero {
+                padding: 34px 26px;
+            }
+
+            .community-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .challenge {
+                grid-template-columns: 1fr;
+            }
+
+            .challenge-side {
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .ends {
+                text-align: left;
+            }
+
+            .challenge-actions {
+                justify-content: flex-start;
+            }
+
+            .feed {
+                grid-template-columns: 1fr;
+            }
+
+            .day-right {
+                justify-content: flex-start;
+                text-align: left;
+            }
+        }
+
+        @media (max-width: 620px) {
+            .games-toolbar {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .chips,
+            .sort {
+                justify-content: center;
+            }
+
+            #games {
+                grid-template-columns: repeat(2, 182px);
+                gap: 20px 14px;
+            }
+
+            .footer {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 410px) {
+            #games {
+                grid-template-columns: repeat(1, 182px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Ambient Background, GIF Wallpaper & Particle Canvas -->
+    <div class="bg-stage">
+        <img src="images/wallpaper1.gif" alt="Wallpaper" class="wallpaper-layer" onerror="this.style.display='none'">
+        <canvas id="particleCanvas"></canvas>
+        <div class="grid-bg"></div>
+        <div class="scanline"></div>
+        <div class="glow"></div>
+        <div class="glow b"></div>
+    </div>
+
+    <!-- Navigation -->
+    <header class="nav">
+        <div class="nav-inner">
+            <button class="icon-btn mobile-btn" id="openMenuBtn" aria-label="Open menu">
+                <span class="material-icons">menu</span>
+            </button>
+
+            <a href="#" class="brand">
+                <div class="brand-mark">
+                    <span class="material-icons" style="font-size: 20px;">ac_unit</span>
+                </div>
+                <span class="brand-name">Snowballz</span>
+                <span class="brand-tag">XMAS</span>
+            </a>
+
+            <nav class="nav-links">
+                <a href="#" class="nav-link active">Home</a>
+                <a href="#library" class="nav-link">Games</a>
+                <a href="#community" class="nav-link">Community</a>
+                <a href="#challenge" class="nav-link">X-Mas Rush</a>
+            </nav>
+
+            <div class="nav-spacer"></div>
+
+            <div class="nav-search">
+                <span class="material-icons" style="font-size: 16px;">search</span>
+                <input type="text" id="searchInput" placeholder="Search snow vault...">
+                <span class="kbd">/</span>
+            </div>
+
+            <button class="icon-btn" id="surpriseBtn" title="Surprise Game">
+                <span class="material-icons">casino</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Sidebar -->
+    <aside class="sidenav" id="sidenav">
+        <div class="sidenav-backdrop" id="closeMenuBackdrop"></div>
+        <div class="sidenav-panel">
+            <div class="side-head">
+                <span class="brand-name">Snowballz</span>
+                <button class="icon-btn" id="closeMenuBtn" aria-label="Close menu">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <nav class="side-nav">
+                <a href="#" class="side-link"><span class="material-icons">home</span> Home</a>
+                <a href="#library" class="side-link"><span class="material-icons">grid_view</span> Game Library</a>
+                <a href="#community" class="side-link"><span class="material-icons">groups</span> Community</a>
+                <a href="#challenge" class="side-link"><span class="material-icons">ac_unit</span> Holiday Challenges</a>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Main Container -->
+    <main class="shell">
+        <!-- Day / Schedule / Weather Bar -->
+        <div class="daybar">
+            <div class="day-left">
+                <span class="day-today" id="dayName">MONDAY</span>
+                <span class="day-date" id="fullDate">December 21, 2026</span>
+            </div>
+            <div class="day-right">
+                <div class="schedule-live">
+                    <span class="material-icons">ac_unit</span>
+                    <span class="schedule-period">Winter Fest</span>
+                    <span class="schedule-countdown" id="liveClock">21:21:00</span>
+                </div>
+                <div class="weather-live">
+                    <span class="material-icons">cloudy_snowing</span>
+                    <span class="weather-temp">24°F</span>
+                    <span class="weather-description">Snowfall</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hero Section -->
+        <section class="hero reveal">
+            <div class="hero-content">
+                <div class="eyebrow">
+                    <span class="dot"></span>
+                    Holiday Vault · Festive Monochrome Play
+                </div>
+                <h1 class="hero-title" id="heroScramble">
+                    Cozy arcade games.
+                    <span>Zero limits.</span>
+                </h1>
+                <div class="hero-actions">
+                    <a href="#library" class="action primary magnetic">
+                        <span class="material-icons">play_arrow</span>
+                        Explore Vault
+                    </a>
+                    <button class="action magnetic" id="heroRandomBtn">
+                        <span class="material-icons">shuffle</span>
+                        Random Game
+                    </button>
+                    <a href="#challenge" class="action magnetic">
+                        <span class="material-icons">bolt</span>
+                        Holiday Rush
+                    </a>
+                </div>
+
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-number" id="totalGamesStat" data-target="12" data-suffix="">12</div>
+                        <div class="stat-label">Holiday Titles</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number" id="liveOnlineCount">1</div>
+                        <div class="stat-label">Live Online Now</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Community Grid -->
+        <section class="section reveal" id="community">
+            <div class="section-head">
+                <div>
+                    <h2 class="section-title">Winter Lodge Hub</h2>
+                    <p class="section-sub">Connect, compete, and climb the holiday monochrome leaderboards.</p>
+                </div>
+                <a href="#library" class="section-link">View All Features →</a>
+            </div>
+
+            <div class="community-grid">
+                <a href="#challenge" class="feature">
+                    <span class="new">Live</span>
+                    <div class="feature-icon"><span class="material-icons">emoji_events</span></div>
+                    <div>
+                        <div class="feature-name">Snow Tourney</div>
+                        <div class="feature-desc">Weekly bracket speedruns.</div>
+                    </div>
+                </a>
+                <a href="#library" class="feature">
+                    <div class="feature-icon"><span class="material-icons">forum</span></div>
+                    <div>
+                        <div class="feature-name">Lodge Chat</div>
+                        <div class="feature-desc">Real-time snow lobbies & squads.</div>
+                    </div>
+                </a>
+                <a href="#library" class="feature">
+                    <div class="feature-icon"><span class="material-icons">leaderboard</span></div>
+                    <div>
+                        <div class="feature-name">Rankings</div>
+                        <div class="feature-desc">Top high scores on winter titles.</div>
+                    </div>
+                </a>
+                <a href="#library" class="feature">
+                    <span class="new">New</span>
+                    <div class="feature-icon"><span class="material-icons">auto_awesome</span></div>
+                    <div>
+                        <div class="feature-name">Igloo Rooms</div>
+                        <div class="feature-desc">Host private matches with friends.</div>
+                    </div>
+                </a>
+                <a href="#library" class="feature">
+                    <div class="feature-icon"><span class="material-icons">bug_report</span></div>
+                    <div>
+                        <div class="feature-name">Wishlist</div>
+                        <div class="feature-desc">Vote on next week's game additions.</div>
+                    </div>
+                </a>
+                <a href="#library" class="feature">
+                    <div class="feature-icon"><span class="material-icons">bolt</span></div>
+                    <div>
+                        <div class="feature-name">Instant Play</div>
+                        <div class="feature-desc">Zero downloads, pure browser speed.</div>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Weekly Challenge -->
+        <section class="section reveal" id="challenge">
+            <div class="challenge">
+                <div>
+                    <div class="challenge-label">Featured X-Mas Challenge</div>
+                    <h3 class="challenge-title">Snowball Blitz · Glacier Circuit #25</h3>
+                    <p class="challenge-sub">Navigate the icy curves before midnight to secure your holiday badge.</p>
+
+                    <div class="race-stats">
+                        <div class="race-stat">
+                            <div class="race-label">FASTEST RUN</div>
+                            <div class="race-value">00:31.204</div>
+                        </div>
+                        <div class="race-stat">
+                            <div class="race-label">PARTICIPANTS</div>
+                            <div class="race-value">842 Racers</div>
+                        </div>
+                        <div class="race-stat">
+                            <div class="race-label">DIFFICULTY</div>
+                            <div class="race-value">Blizzard</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="challenge-side">
+                    <div class="ends">
+                        EVENT ENDS
+                        <div class="timer" id="challengeTimer">05d 12h 19m</div>
+                    </div>
+                    <div class="challenge-actions">
+                        <button class="small-btn" id="copyCodeBtn">Copy Track Code</button>
+                        <button class="small-btn primary" id="launchTrackBtn">Race Now</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Activity Feed -->
+        <section class="section reveal">
+            <div class="feed">
+                <div class="feed-card">
+                    <div class="feed-top">
+                        <div class="feed-title">Holiday Releases</div>
+                        <div class="feed-time">Updated Today</div>
+                    </div>
+                    <div class="feed-body">
+                        Added <strong>Snowball Slalom</strong>, <strong>Winter 2048</strong>, and <strong>Ice Velocity Pro</strong> with full touch controls.
+                    </div>
+                    <a href="#library" class="feed-action">Browse Holiday Drops →</a>
+                </div>
+
+                <div class="feed-card">
+                    <div class="feed-top">
+                        <div class="feed-title">Quick Filters</div>
+                        <div class="feed-time">Tags</div>
+                    </div>
+                    <div class="quick-links" style="margin-top: 12px;">
+                        <button class="quick-link filter-jump" data-cat="racing">Racing</button>
+                        <button class="quick-link filter-jump" data-cat="arcade">Arcade</button>
+                        <button class="quick-link filter-jump" data-cat="puzzle">Puzzle</button>
+                        <button class="quick-link filter-jump" data-cat="action">Action</button>
+                        <button class="quick-link filter-jump" data-cat="all">All Games</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Game Library -->
+        <section class="section reveal" id="library">
+            <div class="games-header">
+                <h1>Snowballz GameVault</h1>
+                <p>Select any holiday title below to launch immediately in monochrome mode.</p>
+            </div>
+
+            <div class="games-toolbar">
+                <div class="chips" id="categoryChips">
+                    <button class="chip active" data-category="all">All Games</button>
+                    <button class="chip" data-category="action">Action</button>
+                    <button class="chip" data-category="racing">Racing</button>
+                    <button class="chip" data-category="puzzle">Puzzle</button>
+                    <button class="chip" data-category="arcade">Arcade</button>
+                </div>
+
+                <div class="sort">
+                    <select id="sortSelect" aria-label="Sort games">
+                        <option value="popular">Sort: Popular</option>
+                        <option value="az">Sort: A – Z</option>
+                        <option value="za">Sort: Z – A</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="games"></div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div>© 2026 Snowballz · X-Mas Monochrome Edition</div>
+            <div>Built for cozy winter gaming sessions.</div>
+        </footer>
+    </main>
+
+    <!-- Surprise Modal -->
+    <div class="modal" id="surpriseModal">
+        <div class="modal-card">
+            <div class="modal-head">
+                <h3 class="modal-title">Random Holiday Pick</h3>
+                <button class="icon-btn" id="closeModalBtn" aria-label="Close modal">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="suggestion-list" id="suggestionList"></div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // =========================================================
+        // SUPABASE LIVE PLAYER COUNTER CONFIG
+        // =========================================================
+        const SUPABASE_URL = "https://YOUR_PROJECT_ID.supabase.co";
+        const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+
+        const isSupabaseConfigured =
+            SUPABASE_URL.startsWith("https://") &&
+            !SUPABASE_URL.includes("YOUR_PROJECT_ID") &&
+            SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY";
+
+        const sb = isSupabaseConfigured
+            ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+            : null;
+
+        let activeGame = null;
+        let presenceChannel = null;
+        let liveGameCounts = {};
+
+        const gamesData = [
+            { id: 1, name: "Snowball Slalom", category: "racing", icon: "ac_unit", plays: 980 },
+            { id: 2, name: "Ice Velocity", category: "arcade", icon: "trending_down", plays: 920 },
+            { id: 3, name: "Winter 2048", category: "puzzle", icon: "grid_on", plays: 870 },
+            { id: 4, name: "Sleigh Drift", category: "racing", icon: "speed", plays: 850 },
+            { id: 5, name: "Yeti Dash", category: "action", icon: "sports_martial_arts", plays: 810 },
+            { id: 6, name: "Frost Pulse", category: "arcade", icon: "hexagon", plays: 790 },
+            { id: 7, name: "Igloo Chess", category: "puzzle", icon: "extension", plays: 760 },
+            { id: 8, name: "Blizzard Runner", category: "action", icon: "directions_run", plays: 740 },
+            { id: 9, name: "Snow Pong", category: "arcade", icon: "sports_tennis", plays: 710 },
+            { id: 10, name: "Snowmobile X3M", category: "racing", icon: "two_wheeler", plays: 690 },
+            { id: 11, name: "Holiday Mines", category: "puzzle", icon: "flag", plays: 650 },
+            { id: 12, name: "Aurora Void", category: "action", icon: "rocket_launch", plays: 630 }
+        ];
+
+        let currentCategory = "all";
+        let currentSearch = "";
+        let currentSort = "popular";
+
+        const gamesGrid = document.getElementById("games");
+        const searchInput = document.getElementById("searchInput");
+        const sortSelect = document.getElementById("sortSelect");
+        const toastEl = document.getElementById("toast");
+
+        function showToast(message) {
+            toastEl.textContent = message;
+            toastEl.classList.add("show");
+            clearTimeout(window.toastTimeout);
+            window.toastTimeout = setTimeout(() => toastEl.classList.remove("show"), 2600);
+        }
+
+        function renderGames() {
+            let filtered = gamesData.filter(game => {
+                const matchesCat = currentCategory === "all" || game.category === currentCategory;
+                const matchesSearch = game.name.toLowerCase().includes(currentSearch.toLowerCase());
+                return matchesCat && matchesSearch;
+            });
+
+            if (currentSort === "az") {
+                filtered.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (currentSort === "za") {
+                filtered.sort((a, b) => b.name.localeCompare(a.name));
+            } else {
+                filtered.sort((a, b) => b.plays - a.plays);
+            }
+
+            if (filtered.length === 0) {
+                gamesGrid.innerHTML = `<div class="loading">No holiday games found matching your filter.</div>`;
+                return;
+            }
+
+            gamesGrid.innerHTML = filtered.map((game, index) => {
+                const count = liveGameCounts[game.name] || 0;
+                return `
+                <article class="game-card" style="--i: ${index}">
+                    <a href="#play-${game.id}" onclick="event.preventDefault(); launchGame('${game.name}')">
+                        <div class="live-badge">
+                            <span class="pulse-dot"></span>
+                            <span>${count} playing</span>
+                        </div>
+                        <div class="game-thumb">
+                            <div class="card-glare"></div>
+                            <span class="material-icons">${game.icon}</span>
+                        </div>
+                        <h3 class="game-name">${game.name}</h3>
+                    </a>
+                </article>
+            `}).join("");
+
+            attachCardTilt();
+        }
+
+        function launchGame(name) {
+            activeGame = name;
+            updatePresenceState(name);
+            showToast(`Launching ${name} in Holiday Mode...`);
+        }
+
+        // Realtime Presence for Site + Per-Game Player Counts
+        const visitorId = crypto.randomUUID();
+        function initPresence() {
+            if (!sb) return;
+            presenceChannel = sb.channel("snowballz-live-room", {
+                config: { presence: { key: visitorId } }
+            });
+
+            presenceChannel
+                .on("presence", { event: "sync" }, () => {
+                    const state = presenceChannel.presenceState();
+                    let totalOnline = 0;
+                    const counts = {};
+
+                    Object.values(state).forEach(presences => {
+                        presences.forEach(p => {
+                            totalOnline++;
+                            if (p.current_game) {
+                                counts[p.current_game] = (counts[p.current_game] || 0) + 1;
+                            }
+                        });
+                    });
+
+                    document.getElementById("liveOnlineCount").textContent = Math.max(1, totalOnline);
+                    liveGameCounts = counts;
+                    renderGames();
+                })
+                .subscribe(async (status) => {
+                    if (status === "SUBSCRIBED") {
+                        await presenceChannel.track({
+                            current_game: activeGame,
+                            online_at: new Date().toISOString()
+                        });
+                    }
+                });
+        }
+
+        async function updatePresenceState(gameName) {
+            if (!presenceChannel) return;
+            await presenceChannel.track({
+                current_game: gameName,
+                online_at: new Date().toISOString()
+            });
+        }
+
+        if (sb) {
+            initPresence();
+        }
+
+        // 3D Card Tilt & Dynamic Glare Physics
+        function attachCardTilt() {
+            document.querySelectorAll(".game-card").forEach(card => {
+                const glare = card.querySelector(".card-glare");
+
+                card.addEventListener("mousemove", (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = ((y - centerY) / centerY) * -12;
+                    const rotateY = ((x - centerX) / centerX) * 12;
+
+                    card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px) scale(1.03)`;
+                    if (glare) {
+                        const px = (x / rect.width) * 100;
+                        const py = (y / rect.height) * 100;
+                        glare.style.background = `radial-gradient(circle at ${px}% ${py}%, rgba(255, 255, 255, 0.35), transparent 65%)`;
+                    }
+                });
+
+                card.addEventListener("mouseleave", () => {
+                    card.style.transform = "rotateX(0deg) rotateY(0deg) translateY(0) scale(1)";
+                });
+            });
+        }
+
+        // Magnetic Buttons
+        document.querySelectorAll(".magnetic").forEach(btn => {
+            btn.addEventListener("mousemove", (e) => {
+                const rect = btn.getBoundingClientRect();
+                const x = (e.clientX - rect.left - rect.width / 2) * 0.28;
+                const y = (e.clientY - rect.top - rect.height / 2) * 0.28;
+                btn.style.transform = `translate(${x}px, ${y}px)`;
+            });
+
+            btn.addEventListener("mouseleave", () => {
+                btn.style.transform = "translate(0px, 0px)";
+            });
+        });
+
+        // Hero Scramble Text Reveal
+        function scrambleHeroTitle() {
+            const target = document.getElementById("heroScramble");
+            if (!target) return;
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789❄️*#";
+            const originalPrimary = "Cozy arcade games.";
+            let frame = 0;
+
+            const interval = setInterval(() => {
+                const scrambled = originalPrimary
+                    .split("")
+                    .map((char, idx) => {
+                        if (char === " ") return " ";
+                        if (idx < frame / 2) return originalPrimary[idx];
+                        return chars[Math.floor(Math.random() * chars.length)];
+                    })
+                    .join("");
+
+                target.childNodes[0].textContent = scrambled + "\n                    ";
+                frame++;
+                if (frame > originalPrimary.length * 2) {
+                    target.childNodes[0].textContent = originalPrimary + "\n                    ";
+                    clearInterval(interval);
+                }
+            }, 35);
+        }
+
+        // Stat Counter Roll-up
+        function animateCounters() {
+            document.querySelectorAll(".stat-number[data-target]").forEach(el => {
+                const target = parseInt(el.dataset.target, 10);
+                const suffix = el.dataset.suffix || "";
+                let current = 0;
+                const step = Math.max(1, Math.ceil(target / 24));
+                const timer = setInterval(() => {
+                    current += step;
+                    if (current >= target) {
+                        el.textContent = target + suffix;
+                        clearInterval(timer);
+                    } else {
+                        el.textContent = current + suffix;
+                    }
+                }, 30);
+            });
+        }
+
+        // Scroll Reveal Observer
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add("visible");
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll(".reveal").forEach(el => revealObserver.observe(el));
+
+        // Interactive Snowflake & Constellation Particle Canvas
+        const canvas = document.getElementById("particleCanvas");
+        const ctx = canvas.getContext("2d");
+        let particles = [];
+        let mouse = { x: null, y: null };
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initParticles();
+        }
+
+        function initParticles() {
+            const count = Math.min(65, Math.floor((canvas.width * canvas.height) / 20000));
+            particles = Array.from({ length: count }, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 0.4,
+                vy: Math.random() * 0.8 + 0.3,
+                size: Math.random() * 2.2 + 1
+            }));
+        }
+
+        window.addEventListener("mousemove", (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+
+        window.addEventListener("mouseout", () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if (p.y > canvas.height) {
+                    p.y = -10;
+                    p.x = Math.random() * canvas.width;
+                }
+
+                ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (mouse.x !== null && mouse.y !== null) {
+                    const mdx = p.x - mouse.x;
+                    const mdy = p.y - mouse.y;
+                    const mdist = Math.hypot(mdx, mdy);
+                    if (mdist < 130) {
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${(1 - mdist / 130) * 0.35})`;
+                        ctx.lineWidth = 0.8;
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(mouse.x, mouse.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animateParticles);
+        }
+
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+        animateParticles();
+
+        // Category Chips
+        document.getElementById("categoryChips").addEventListener("click", (e) => {
+            const chip = e.target.closest(".chip");
+            if (!chip) return;
+            document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+            chip.classList.add("active");
+            currentCategory = chip.dataset.category;
+            renderGames();
+        });
+
+        // Quick Filter Jump Buttons
+        document.querySelectorAll(".filter-jump").forEach(btn => {
+            btn.addEventListener("click", () => {
+                currentCategory = btn.dataset.cat;
+                document.querySelectorAll(".chip").forEach(c => {
+                    c.classList.toggle("active", c.dataset.category === currentCategory);
+                });
+                renderGames();
+                document.getElementById("library").scrollIntoView({ behavior: "smooth" });
+            });
+        });
+
+        // Search & Shortcut '/'
+        searchInput.addEventListener("input", (e) => {
+            currentSearch = e.target.value;
+            renderGames();
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "/" && document.activeElement !== searchInput) {
+                e.preventDefault();
+                searchInput.focus();
+            }
+        });
+
+        // Sort
+        sortSelect.addEventListener("change", (e) => {
+            currentSort = e.target.value;
+            renderGames();
+        });
+
+        // Mobile Sidebar
+        const sidenav = document.getElementById("sidenav");
+        document.getElementById("openMenuBtn").addEventListener("click", () => sidenav.classList.add("open"));
+        document.getElementById("closeMenuBtn").addEventListener("click", () => sidenav.classList.remove("open"));
+        document.getElementById("closeMenuBackdrop").addEventListener("click", () => sidenav.classList.remove("open"));
+
+        // Surprise Modal
+        const surpriseModal = document.getElementById("surpriseModal");
+        const suggestionList = document.getElementById("suggestionList");
+
+        function openSurpriseModal() {
+            const shuffled = [...gamesData].sort(() => 0.5 - Math.random()).slice(0, 3);
+            suggestionList.innerHTML = shuffled.map(g => `
+                <div class="suggestion">
+                    <div>
+                        <div class="suggestion-name">${g.name}</div>
+                        <div class="suggestion-meta">${g.category.toUpperCase()} · ${g.plays} plays</div>
+                    </div>
+                    <button class="small-btn primary" onclick="launchGame('${g.name}')">Play</button>
+                </div>
+            `).join("");
+            surpriseModal.classList.add("show");
+            document.body.classList.add("modal-open");
+        }
+
+        function closeSurpriseModal() {
+            surpriseModal.classList.remove("show");
+            document.body.classList.remove("modal-open");
+        }
+
+        document.getElementById("surpriseBtn").addEventListener("click", openSurpriseModal);
+        document.getElementById("heroRandomBtn").addEventListener("click", openSurpriseModal);
+        document.getElementById("closeModalBtn").addEventListener("click", closeSurpriseModal);
+        surpriseModal.addEventListener("click", (e) => {
+            if (e.target === surpriseModal) closeSurpriseModal();
+        });
+
+        // Copy Track Code & Race Launch
+        document.getElementById("copyCodeBtn").addEventListener("click", () => {
+            const temp = document.createElement("textarea");
+            temp.value = "SNOWBALLZ-XMAS-25";
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand("copy");
+            document.body.removeChild(temp);
+            showToast("Holiday track code SNOWBALLZ-XMAS-25 copied!");
+        });
+
+        document.getElementById("launchTrackBtn").addEventListener("click", () => {
+            launchGame("Snowball Blitz · Glacier #25");
+        });
+
+        // Live Clock
+        function updateClock() {
+            const now = new Date();
+            const days = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
+            document.getElementById("dayName").textContent = days[now.getDay()];
+            document.getElementById("fullDate").textContent = now.toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric"
+            });
+            document.getElementById("liveClock").textContent = now.toTimeString().split(" ")[0];
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Initial Render & Entry Effects
+        renderGames();
+        scrambleHeroTitle();
+        animateCounters();
+    </script>
+</body>
+
+</html>
