@@ -2,2348 +2,6433 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#000000">
-
-    <title>Snowballz · Holiday GameVault</title>
-
-    <meta name="description" content="Play holiday browser games on Snowballz. Cozy winter vibes, live players, and instant play.">
-    <meta name="keywords" content="Snowballz, games, browser games, holiday games, winter games">
-    <meta name="author" content="Snowballz">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <style>
-        /* =========================================================
-           SNOWBALLZ
-           CHRISTMAS MONOCHROME EDITION
-           ========================================================= */
-
-        :root {
-            --bg: #000000;
-            --bg-2: #0a0a0a;
-            --bg-3: #141414;
-
-            --panel: rgba(12, 12, 12, 0.88);
-            --panel-2: rgba(20, 20, 20, 0.94);
-
-            --border: rgba(255, 255, 255, 0.16);
-            --border-hover: rgba(255, 255, 255, 0.42);
-
-            --text: #ffffff;
-            --text-2: #cccccc;
-            --text-3: #888888;
-
-            --accent: #ffffff;
-            --accent-2: #e0e0e0;
-            --accent-soft: rgba(255, 255, 255, 0.12);
-
-            --white: #ffffff;
-            --black: #000000;
-
-            --radius: 18px;
-            --radius-small: 12px;
-
-            --nav-height: 72px;
-            --sidebar-width: 300px;
-
-            --shadow: 0 20px 60px rgba(0, 0, 0, 0.88);
-        }
-
-        /* =========================================================
-           KEYFRAME ANIMATIONS
-           ========================================================= */
-
-        @keyframes gridDrift {
-            0% { background-position: 0 0; }
-            100% { background-position: 48px 48px; }
-        }
-
-        @keyframes orbFloat {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(45px, -35px) scale(1.08); }
-            66% { transform: translate(-30px, 25px) scale(0.95); }
-        }
-
-        @keyframes pulseRing {
-            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.75); }
-            70% { box-shadow: 0 0 0 9px rgba(255, 255, 255, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
-        }
-
-        @keyframes shimmerText {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        @keyframes borderSweep {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @keyframes cardPopIn {
-            0% {
-                opacity: 0;
-                transform: translateY(24px) scale(0.94);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        @keyframes scanline {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100vh); }
-        }
-
-        @keyframes modalSpring {
-            0% {
-                opacity: 0;
-                transform: scale(0.88) translateY(16px);
-            }
-            70% {
-                opacity: 1;
-                transform: scale(1.02) translateY(-2px);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        @keyframes floatSnowflake {
-            0% { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.8; }
-            90% { opacity: 0.8; }
-            100% { transform: translateY(105vh) translateX(40px) rotate(360deg); opacity: 0; }
-        }
-
-        /* =========================================================
-           RESET
-           ========================================================= */
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html {
-            scroll-behavior: smooth;
-            background: var(--bg);
-        }
-
-        body {
-            min-height: 100vh;
-            background: var(--bg);
-            color: var(--text);
-            font-family: Inter, Arial, sans-serif;
-            line-height: 1.5;
-            overflow-x: hidden;
-        }
-
-        body.modal-open {
-            overflow: hidden;
-        }
-
-        a {
-            color: inherit;
-            text-decoration: none;
-        }
-
-        button,
-        input,
-        select {
-            font: inherit;
-        }
-
-        button {
-            color: inherit;
-        }
-
-        img {
-            max-width: 100%;
-        }
-
-        .material-icons {
-            font-size: 20px;
-            vertical-align: middle;
-        }
-
-        /* =========================================================
-           SCROLL REVEAL UTILITY
-           ========================================================= */
-
-        .reveal {
-            opacity: 0;
-            transform: translateY(28px);
-            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-                        transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .reveal.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* =========================================================
-           BACKGROUND & GIF WALLPAPER LAYER
-           ========================================================= */
-
-        .bg-stage {
-            position: fixed;
-            inset: 0;
-            z-index: -5;
-            pointer-events: none;
-            overflow: hidden;
-        }
-
-        .wallpaper-layer {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.22;
-            filter: grayscale(100%) contrast(120%) brightness(50%);
-        }
-
-        #particleCanvas {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0.55;
-        }
-
-        .grid-bg {
-            position: absolute;
-            inset: 0;
-            opacity: 0.25;
-            background-image:
-                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-            background-size: 48px 48px;
-            animation: gridDrift 20s linear infinite;
-            mask-image: linear-gradient(to bottom, black, transparent 85%);
-            -webkit-mask-image: linear-gradient(to bottom, black, transparent 85%);
-        }
-
-        .scanline {
-            position: absolute;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
-            animation: scanline 9s linear infinite;
-        }
-
-        .glow {
-            position: absolute;
-            width: 600px;
-            height: 600px;
-            top: -300px;
-            left: -180px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.08);
-            filter: blur(110px);
-            animation: orbFloat 14s ease-in-out infinite;
-        }
-
-        .glow.b {
-            top: 40%;
-            left: auto;
-            right: -350px;
-            background: rgba(255, 255, 255, 0.06);
-            animation-delay: -6s;
-        }
-
-        /* =========================================================
-           NAVIGATION
-           ========================================================= */
-
-        .nav {
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            height: var(--nav-height);
-            border-bottom: 1px solid var(--border);
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(22px);
-            -webkit-backdrop-filter: blur(22px);
-        }
-
-        .nav-inner {
-            width: min(1500px, calc(100% - 36px));
-            height: 100%;
-            margin: auto;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-shrink: 0;
-        }
-
-        .brand-mark {
-            width: 36px;
-            height: 36px;
-            border-radius: 11px;
-            display: grid;
-            place-items: center;
-            background: #ffffff;
-            color: #000000;
-            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.25);
-            overflow: hidden;
-            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .brand:hover .brand-mark {
-            transform: rotate(-10deg) scale(1.1);
-        }
-
-        .brand-name {
-            font-family: "Space Grotesk", sans-serif;
-            font-weight: 700;
-            font-size: 20px;
-            letter-spacing: -0.5px;
-            color: var(--white);
-        }
-
-        .brand-tag {
-            padding: 3px 7px;
-            border-radius: 6px;
-            font-size: 9px;
-            text-transform: uppercase;
-            letter-spacing: 0.7px;
-            font-weight: 700;
-            background: var(--white);
-            color: var(--black);
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            margin-left: 28px;
-        }
-
-        .nav-link {
-            position: relative;
-            color: var(--text-2);
-            padding: 8px 11px;
-            border-radius: 9px;
-            font-size: 13px;
-            font-weight: 500;
-            transition: 0.2s;
-        }
-
-        .nav-link::after {
-            content: "";
-            position: absolute;
-            left: 11px;
-            right: 11px;
-            bottom: 4px;
-            height: 1.5px;
-            background: #ffffff;
-            transform: scaleX(0);
-            transform-origin: right;
-            transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .nav-link:hover::after,
-        .nav-link.active::after {
-            transform: scaleX(1);
-            transform-origin: left;
-        }
-
-        .nav-link:hover {
-            color: var(--white);
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .nav-link.active {
-            color: var(--white);
-            background: rgba(255, 255, 255, 0.12);
-        }
-
-        .nav-spacer {
-            flex: 1;
-        }
-
-        /* SEARCH */
-
-        .nav-search {
-            height: 38px;
-            width: 230px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 0 10px;
-            border: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            color: var(--text-3);
-            transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s, box-shadow 0.2s;
-        }
-
-        .nav-search:focus-within {
-            width: 270px;
-            border-color: var(--white);
-            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.14);
-        }
-
-        .nav-search input {
-            width: 100%;
-            border: 0;
-            outline: 0;
-            background: transparent;
-            color: var(--white);
-            font-size: 12px;
-        }
-
-        .nav-search input::placeholder {
-            color: var(--text-3);
-        }
-
-        .kbd {
-            font-size: 10px;
-            color: var(--text-3);
-            white-space: nowrap;
-            border: 1px solid var(--border);
-            padding: 1px 5px;
-            border-radius: 4px;
-        }
-
-        /* ICON BUTTON */
-
-        .icon-btn {
-            width: 38px;
-            height: 38px;
-            display: grid;
-            place-items: center;
-            border: 1px solid transparent;
-            background: transparent;
-            border-radius: 10px;
-            cursor: pointer;
-            color: var(--text-2);
-            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s, color 0.2s, border-color 0.2s;
-        }
-
-        .icon-btn:hover {
-            color: var(--white);
-            background: rgba(255, 255, 255, 0.1);
-            border-color: var(--border);
-            transform: scale(1.08);
-        }
-
-        .icon-btn:active {
-            transform: scale(0.94);
-        }
-
-        .mobile-btn {
-            display: none;
-        }
-
-        /* =========================================================
-           MAIN
-           ========================================================= */
-
-        .shell {
-            width: min(1500px, calc(100% - 36px));
-            margin: auto;
-            padding: 25px 0 70px;
-        }
-
-        /* =========================================================
-           DAY BAR
-           ========================================================= */
-
-        .daybar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-            padding: 13px 17px;
-            margin-bottom: 18px;
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            background: rgba(255, 255, 255, 0.03);
-            transition: border-color 0.3s;
-        }
-
-        .daybar:hover {
-            border-color: var(--border-hover);
-        }
-
-        .day-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .day-today {
-            color: var(--white);
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
-
-        .day-date {
-            color: var(--text-3);
-            font-size: 11px;
-        }
-
-        .day-right {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 10px;
-            color: var(--text-3);
-            font-size: 10px;
-            text-align: right;
-            flex-wrap: wrap;
-        }
-
-        .schedule-live,
-        .weather-live {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            padding: 5px 8px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.04);
-            white-space: nowrap;
-        }
-
-        .schedule-live .material-icons,
-        .weather-live .material-icons {
-            font-size: 14px;
-            color: var(--white);
-        }
-
-        .schedule-period,
-        .weather-temp {
-            color: var(--white);
-            font-weight: 700;
-        }
-
-        .schedule-countdown {
-            color: var(--text-2);
-            font-variant-numeric: tabular-nums;
-        }
-
-        .weather-description {
-            color: var(--text-3);
-        }
-
-        /* =========================================================
-           HERO
-           ========================================================= */
-
-        .hero {
-            position: relative;
-            overflow: hidden;
-            min-height: 410px;
-            padding: 52px;
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            background:
-                radial-gradient(circle at 88% 18%, rgba(255, 255, 255, 0.14), transparent 32%),
-                linear-gradient(135deg, #161616, #050505);
-            box-shadow: var(--shadow);
-        }
-
-        .hero::before {
-            content: "";
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: conic-gradient(
-                from 0deg at 50% 50%,
-                transparent 0deg,
-                rgba(255, 255, 255, 0.05) 60deg,
-                transparent 120deg
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#000000">
+
+<title>SnowBallz</title>
+
+<meta
+    name="description"
+    content="Play anything on SnowBallz. Discover games, challenge friends, chat, compete, and explore."
+>
+
+<meta
+    name="keywords"
+    content="SnowBallz, games, browser games, online games, HTML5 games, snow"
+>
+
+<meta name="author" content="SnowBallz">
+
+<link rel="icon" href="./assets/favicon.svg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+>
+
+<link
+    href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    rel="stylesheet"
+>
+
+<style>
+
+/* =========================================================
+   SNOWBALLZ
+   SINGLE FILE HOMEPAGE
+   ========================================================= */
+
+:root {
+
+    --bg: #000000;
+    --bg-2: #0a0a0a;
+    --bg-3: #111111;
+
+    --panel: rgba(18, 18, 18, .9);
+    --panel-2: rgba(24, 24, 24, .95);
+
+    --border: rgba(255,255,255,.12);
+    --border-hover: rgba(255,255,255,.22);
+
+    --text: #ffffff;
+    --text-2: #c8c8c8;
+    --text-3: #888888;
+
+    --accent: #ffffff;
+    --accent-2: #e0e0e0;
+    --accent-soft: rgba(255,255,255,.12);
+
+    --green: #cccccc;
+    --red: #aaaaaa;
+    --yellow: #dddddd;
+
+    --radius: 18px;
+    --radius-small: 12px;
+
+    --nav-height: 72px;
+    --sidebar-width: 300px;
+
+    --shadow:
+        0 20px 60px rgba(0,0,0,.5);
+}
+
+
+/* =========================================================
+   RESET
+   ========================================================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+    background: var(--bg);
+}
+
+body {
+
+    min-height: 100vh;
+
+    background: var(--bg);
+
+    color: var(--text);
+
+    font-family:
+        Inter,
+        Arial,
+        sans-serif;
+
+    line-height: 1.5;
+
+    overflow-x: hidden;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    color: inherit;
+}
+
+img {
+    max-width: 100%;
+}
+
+.material-icons {
+    font-size: 20px;
+    vertical-align: middle;
+}
+
+
+/* =========================================================
+   BACKGROUND
+   ========================================================= */
+
+.bg-stage {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: -5;
+
+    pointer-events: none;
+
+    overflow: hidden;
+}
+
+.grid-bg {
+
+    position: absolute;
+
+    inset: 0;
+
+    opacity: .23;
+
+    background-image:
+
+        linear-gradient(
+            rgba(255,255,255,.025) 1px,
+            transparent 1px
+        ),
+
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,.025) 1px,
+            transparent 1px
+        );
+
+    background-size: 48px 48px;
+
+    mask-image:
+        linear-gradient(
+            to bottom,
+            black,
+            transparent 80%
+        );
+}
+
+.glow {
+
+    position: absolute;
+
+    width: 600px;
+    height: 600px;
+
+    top: -300px;
+    left: -180px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,.04);
+
+    filter: blur(100px);
+}
+
+.glow.b {
+
+    top: 40%;
+
+    left: auto;
+
+    right: -350px;
+
+    background:
+        rgba(255,255,255,.03);
+}
+
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+.nav {
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 1000;
+
+    height: var(--nav-height);
+
+    border-bottom:
+        1px solid var(--border);
+
+    background:
+        rgba(0,0,0,.92);
+
+    backdrop-filter:
+        blur(22px);
+
+    -webkit-backdrop-filter:
+        blur(22px);
+}
+
+.nav-inner {
+
+    width:
+        min(
+            1500px,
+            calc(100% - 36px)
+        );
+
+    height: 100%;
+
+    margin: auto;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+/* BRAND */
+
+.brand {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    flex-shrink: 0;
+}
+
+.brand-mark {
+
+    width: 36px;
+    height: 36px;
+
+    border-radius: 11px;
+
+    display: grid;
+
+    place-items: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffffff,
+            #aaaaaa
+        );
+
+    box-shadow:
+        0 8px 25px
+        rgba(255,255,255,.15);
+
+    overflow: hidden;
+}
+
+.brand-logo {
+
+    width: 23px;
+    height: 23px;
+
+    object-fit: contain;
+}
+
+.brand-name {
+
+    font-family:
+        "Space Grotesk",
+        sans-serif;
+
+    font-weight: 700;
+
+    font-size: 20px;
+
+    letter-spacing: -.5px;
+}
+
+.brand-tag {
+
+    padding: 3px 7px;
+
+    border-radius: 6px;
+
+    font-size: 9px;
+
+    text-transform: uppercase;
+
+    letter-spacing: .7px;
+
+    font-weight: 700;
+
+    background:
+        var(--accent-soft);
+
+    color:
+        #dddddd;
+}
+
+
+/* NAV LINKS */
+
+.nav-links {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 4px;
+
+    margin-left: 28px;
+}
+
+.nav-link {
+
+    color:
+        var(--text-2);
+
+    padding:
+        8px 11px;
+
+    border-radius:
+        9px;
+
+    font-size:
+        13px;
+
+    font-weight:
+        500;
+
+    transition:
+        .2s;
+}
+
+.nav-link:hover {
+
+    color:
+        var(--text);
+
+    background:
+        rgba(255,255,255,.05);
+}
+
+.nav-link.active {
+
+    color:
+        var(--text);
+
+    background:
+        rgba(255,255,255,.07);
+}
+
+.nav-spacer {
+    flex: 1;
+}
+
+
+/* SEARCH */
+
+.nav-search {
+
+    height: 38px;
+
+    width: 230px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding:
+        0 10px;
+
+    border:
+        1px solid var(--border);
+
+    background:
+        rgba(255,255,255,.035);
+
+    border-radius:
+        10px;
+
+    color:
+        var(--text-3);
+}
+
+.nav-search:focus-within {
+
+    border-color:
+        rgba(255,255,255,.4);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(255,255,255,.08);
+}
+
+.nav-search input {
+
+    width: 100%;
+
+    border: 0;
+
+    outline: 0;
+
+    background: transparent;
+
+    color:
+        var(--text);
+
+    font-size:
+        12px;
+}
+
+.nav-search input::placeholder {
+
+    color:
+        var(--text-3);
+}
+
+.kbd {
+
+    font-size:
+        10px;
+
+    color:
+        var(--text-3);
+
+    white-space:
+        nowrap;
+}
+
+
+/* ICON BUTTON */
+
+.icon-btn {
+
+    width: 38px;
+    height: 38px;
+
+    display: grid;
+
+    place-items: center;
+
+    border:
+        1px solid transparent;
+
+    background:
+        transparent;
+
+    border-radius:
+        10px;
+
+    cursor:
+        pointer;
+
+    color:
+        var(--text-2);
+
+    transition:
+        .2s;
+}
+
+.icon-btn:hover {
+
+    color:
+        var(--text);
+
+    background:
+        rgba(255,255,255,.06);
+
+    border-color:
+        var(--border);
+}
+
+.mobile-btn {
+    display: none;
+}
+
+
+/* =========================================================
+   MAIN
+   ========================================================= */
+
+.shell {
+
+    position: relative;
+    z-index: 1;
+
+    width:
+        min(
+            1500px,
+            calc(100% - 36px)
+        );
+
+    margin:
+        auto;
+
+    padding:
+        25px 0 70px;
+}
+
+
+/* =========================================================
+   DAY BAR
+   ========================================================= */
+
+.daybar {
+
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+
+    gap: 20px;
+
+    padding:
+        13px 17px;
+
+    margin-bottom:
+        18px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        14px;
+
+    background:
+        rgba(255,255,255,.025);
+}
+
+.day-left {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+.day-today {
+
+    color:
+        var(--text);
+
+    font-size:
+        11px;
+
+    font-weight:
+        800;
+
+    text-transform:
+        uppercase;
+
+    letter-spacing:
+        .8px;
+}
+
+.day-date {
+
+    color:
+        var(--text-3);
+
+    font-size:
+        11px;
+}
+
+
+/* =========================================================
+   UPDATED DAY / SCHEDULE / WEATHER
+   ========================================================= */
+
+.day-right {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        flex-end;
+
+    gap:
+        10px;
+
+    color:
+        var(--text-3);
+
+    font-size:
+        10px;
+
+    text-align:
+        right;
+
+    flex-wrap:
+        wrap;
+}
+
+.schedule-live {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    gap:
+        7px;
+
+    padding:
+        5px 8px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        8px;
+
+    background:
+        rgba(255,255,255,.025);
+
+    white-space:
+        nowrap;
+}
+
+.schedule-live .material-icons {
+
+    font-size:
+        14px;
+
+    color:
+        #cccccc;
+}
+
+.schedule-period {
+
+    color:
+        var(--text);
+
+    font-weight:
+        700;
+}
+
+.schedule-countdown {
+
+    color:
+        var(--text-3);
+
+    font-variant-numeric:
+        tabular-nums;
+}
+
+.weather-live {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    gap:
+        7px;
+
+    padding:
+        5px 8px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        8px;
+
+    background:
+        rgba(255,255,255,.025);
+
+    white-space:
+        nowrap;
+}
+
+.weather-live .material-icons {
+
+    font-size:
+        15px;
+
+    color:
+        #bbbbbb;
+}
+
+.weather-temp {
+
+    color:
+        var(--text);
+
+    font-weight:
+        700;
+}
+
+.weather-description {
+
+    color:
+        var(--text-3);
+}
+
+.schedule-detail {
+
+    color:
+        var(--text-3);
+
+    font-size:
+        9px;
+}
+
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+.hero {
+
+    position:
+        relative;
+
+    overflow:
+        hidden;
+
+    min-height:
+        410px;
+
+    padding:
+        52px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        24px;
+
+    background:
+
+        radial-gradient(
+            circle at 88% 18%,
+            rgba(255,255,255,.08),
+            transparent 28%
+        ),
+
+        linear-gradient(
+            135deg,
+            rgba(20,20,20,.98),
+            rgba(5,5,5,.99)
+        );
+
+    box-shadow:
+        var(--shadow);
+}
+
+.hero::after {
+
+    content: "";
+
+    position:
+        absolute;
+
+    width:
+        500px;
+
+    height:
+        500px;
+
+    right:
+        -190px;
+
+    bottom:
+        -300px;
+
+    border-radius:
+        50%;
+
+    background:
+        rgba(255,255,255,.05);
+
+    filter:
+        blur(80px);
+
+    pointer-events:
+        none;
+}
+
+.hero-content {
+
+    position:
+        relative;
+
+    z-index:
+        2;
+
+    max-width:
+        900px;
+}
+
+.eyebrow {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    gap:
+        8px;
+
+    color:
+        #cccccc;
+
+    font-size:
+        11px;
+
+    font-weight:
+        800;
+
+    text-transform:
+        uppercase;
+
+    letter-spacing:
+        1.4px;
+
+    margin-bottom:
+        16px;
+}
+
+.dot {
+
+    width:
+        7px;
+
+    height:
+        7px;
+
+    border-radius:
+        50%;
+
+    background:
+        var(--green);
+
+    box-shadow:
+        0 0 13px
+        rgba(255,255,255,.5);
+}
+
+.hero-title {
+
+    font-family:
+        "Space Grotesk",
+        sans-serif;
+
+    font-size:
+        clamp(52px,8vw,90px);
+
+    line-height:
+        .9;
+
+    letter-spacing:
+        -4.5px;
+
+    margin-bottom:
+        25px;
+}
+
+.hero-title span {
+
+    display:
+        block;
+
+    color:
+        #cccccc;
+}
+
+
+/* =========================================================
+   HERO ACTIONS
+   ========================================================= */
+
+.hero-actions {
+
+    display:
+        flex;
+
+    flex-wrap:
+        wrap;
+
+    gap:
+        9px;
+}
+
+.action {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    gap:
+        8px;
+
+    min-height:
+        42px;
+
+    padding:
+        0 15px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        10px;
+
+    background:
+        rgba(255,255,255,.035);
+
+    color:
+        var(--text-2);
+
+    font-size:
+        11px;
+
+    font-weight:
+        700;
+
+    transition:
+        .2s;
+
+    cursor:
+        pointer;
+}
+
+.action:hover {
+
+    color:
+        white;
+
+    border-color:
+        rgba(255,255,255,.25);
+
+    background:
+        rgba(255,255,255,.08);
+
+    transform:
+        translateY(-2px);
+}
+
+.action.primary {
+
+    background:
+        var(--accent);
+
+    border-color:
+        var(--accent);
+
+    color:
+        white;
+}
+
+.action.primary:hover {
+
+    background:
+        #e8e8e8;
+}
+
+.action .material-icons {
+
+    font-size:
+        17px;
+}
+
+
+/* =========================================================
+   STATS
+   ========================================================= */
+
+.stats {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(2,180px);
+
+    gap:
+        10px;
+
+    margin-top:
+        34px;
+}
+
+.stat {
+
+    padding:
+        15px 17px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        13px;
+
+    background:
+        rgba(255,255,255,.025);
+}
+
+.stat-number {
+
+    font-family:
+        "Space Grotesk",
+        sans-serif;
+
+    font-size:
+        27px;
+
+    font-weight:
+        700;
+}
+
+.stat-label {
+
+    margin-top:
+        2px;
+
+    color:
+        var(--text-3);
+
+    font-size:
+        9px;
+
+    text-transform:
+        uppercase;
+
+    letter-spacing:
+        .7px;
+}
+
+
+/* =========================================================
+   SECTIONS
+   ========================================================= */
+
+.section {
+
+    margin-top:
+        45px;
+}
+
+.section-head {
+
+    display:
+        flex;
+
+    align-items:
+        flex-end;
+
+    justify-content:
+        space-between;
+
+    gap:
+        20px;
+
+    margin-bottom:
+        17px;
+}
+
+.section-title {
+
+    font-family:
+        "Space Grotesk",
+        sans-serif;
+
+    font-size:
+        25px;
+
+    letter-spacing:
+        -.7px;
+}
+
+.section-sub {
+
+    color:
+        var(--text-3);
+
+    font-size:
+        11px;
+
+    margin-top:
+        4px;
+}
+
+.section-link {
+
+    color:
+        #cccccc;
+
+    font-size:
+        10px;
+
+    font-weight:
+        700;
+}
+
+
+/* =========================================================
+   COMMUNITY
+   ========================================================= */
+
+.community-grid {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(6,minmax(0,1fr));
+
+    gap:
+        10px;
+}
+
+.feature {
+
+    position:
+        relative;
+
+    min-height:
+        135px;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    justify-content:
+        space-between;
+
+    padding:
+        16px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        15px;
+
+    background:
+        rgba(255,255,255,.025);
+
+    transition:
+        .2s;
+}
+
+.feature:hover {
+
+    transform:
+        translateY(-3px);
+
+    border-color:
+        rgba(255,255,255,.2);
+
+    background:
+        rgba(255,255,255,.05);
+}
+
+.feature-icon {
+
+    width:
+        34px;
+
+    height:
+        34px;
+
+    display:
+        grid;
+
+    place-items:
+        center;
+
+    border-radius:
+        10px;
+
+    background:
+        var(--accent-soft);
+
+    color:
+        #cccccc;
+}
+
+.feature-icon .material-icons {
+
+    font-size:
+        18px;
+}
+
+.feature-name {
+
+    font-family:
+        "Space Grotesk",
+        sans-serif;
+
+    font-size:
+        15px;
+
+    font-weight:
+        700;
+}
+
+.feature-desc {
+
+    color:
+        var(--text-3);
+
+    font-size:
+        9px;
+
+    line-height:
+        1.45;
+
+    margin-top:
+        3px;
+}
+
+.new {
+
+    position:
+        absolute;
+
+    top:
+        10px;
+
+    right:
+        10px;
+
+    padding:
+        3px 6px;
+
+    border-radius:
+        5px;
+
+    background:
+        rgba(255,255,255,.1);
+
+    color:
+        var(--text);
+
+    font-size:
+        7px;
+
+    font-weight:
+        800;
+
+    text-transform:
+        uppercase;
+
+    letter-spacing:
+        .5px;
+}
+
+
+/* =========================================================
+   QUICK LINKS
+   ========================================================= */
+
+.quick-links {
+
+    display:
+        flex;
+
+    flex-wrap:
+        wrap;
+
+    gap:
+        7px;
+}
+
+.quick-link {
+
+    padding:
+        8px 11px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        8px;
+
+    background:
+        rgba(255,255,255,.025);
+
+    color:
+        var(--text-3);
+
+    font-size:
+        9px;
+
+    font-weight:
+        600;
+
+    transition:
+        .2s;
+}
+
+.quick-link:hover {
+
+    color:
+        var(--text);
+
+    border-color:
+        var(--border-hover);
+
+    background:
+        rgba(255,255,255,.06);
+}
+
+
+/* =========================================================
+   POLYTRACK CHALLENGE
+   ========================================================= */
+
+.challenge {
+
+    position:
+        relative;
+
+    overflow:
+        hidden;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        minmax(0,1.4fr)
+        minmax(280px,.8fr);
+
+    gap:
+        20px;
+
+    padding:
+        27px;
+
+    border:
+        1px solid rgba(255,255,255,.15);
+
+    border-radius:
+        18px;
+
+    background:
+
+        radial-gradient(
+            circle at 100% 0%,
+            rgba(255,255,255,.06),
+            transparent 35%
+        ),
+
+        rgba(255,255,255,.025);
+}
+
+.challenge-label {
+
+    color:
+        #cccccc;
+
+    font-size:
+        9px;
+
+    font-weight:
+        800;
+
+    text-transform:
+        uppercase;
+
+    letter-spacing:
+        1px;
+
+    margin-bottom:
+        8px;
+}
+
+.challenge-title {
+
+    font-family:
+        "Space Grotesk",
+        sans-serif;
+
+    font-size:
+        27px;
+
+    letter-spacing:
+        -.7px;
+}
+
+.challenge-sub {
+
+    color:
+        var(--text-3);
+
+    font-size:
+        11px;
+
+    margin-top:
+        3px;
+}
+
+.race-stats {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(3,1fr);
+
+    gap:
+        7px;
+
+    margin-top:
+        20px;
+}
+
+.race-stat {
+
+    padding:
+        10px;
+
+    border-radius:
+        9px;
+
+    background:
+        rgba(0,0,0,.18);
+}
+
+.race-label {
+
+    color:
+        var(--text-3);
+
+    font-size:
+        8px;
+}
+
+.race-value {
+
+    margin-top:
+        2px;
+
+    font-size:
+        11px;
+
+    font-weight:
+        700;
+}
+
+.challenge-side {
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        flex-end;
+}
+
+.ends {
+
+    color:
+        var(--text-3);
+
+    font-size:
+        9px;
+
+    text-align:
+        right;
+}
+
+.timer {
+
+    font-family:
+        monospace;
+
+    font-size:
+        14px;
+
+    color:
+        var(--text);
+
+    margin-top:
+        2px;
+}
+
+.challenge-actions {
+
+    display:
+        flex;
+
+    gap:
+        7px;
+
+    flex-wrap:
+        wrap;
+
+    justify-content:
+        flex-end;
+}
+
+.small-btn {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    gap:
+        5px;
+
+    padding:
+        9px 12px;
+
+    border-radius:
+        8px;
+
+    border:
+        1px solid var(--border);
+
+    background:
+        rgba(255,255,255,.035);
+
+    color:
+        var(--text-2);
+
+    font-size:
+        9px;
+
+    font-weight:
+        700;
+}
+
+.small-btn:hover {
+
+    color:
+        white;
+
+    background:
+        rgba(255,255,255,.075);
+}
+
+.small-btn.primary {
+
+    background:
+        var(--accent);
+
+    border-color:
+        var(--accent);
+
+    color:
+        white;
+}
+
+
+/* =========================================================
+   NEWEST / FRIENDS
+   ========================================================= */
+
+.feed {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        minmax(0,1fr)
+        280px;
+
+    gap:
+        15px;
+}
+
+.feed-card {
+
+    padding:
+        18px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        15px;
+
+    background:
+        rgba(255,255,255,.025);
+}
+
+.feed-top {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    gap:
+        10px;
+}
+
+.feed-title {
+
+    font-family:
+        "Space Grotesk",
+        sans-serif;
+
+    font-size:
+        16px;
+
+    font-weight:
+        700;
+}
+
+.feed-time {
+
+    color:
+        var(--text-3);
+
+    font-size:
+        9px;
+}
+
+.feed-body {
+
+    margin-top:
+        12px;
+
+    color:
+        var(--text-2);
+
+    font-size:
+        11px;
+}
+
+.feed-body strong {
+
+    color:
+        var(--text);
+}
+
+.feed-action {
+
+    display:
+        inline-block;
+
+    margin-top:
+        12px;
+
+    color:
+        #cccccc;
+
+    font-size:
+        10px;
+
+    font-weight:
+        700;
+}
+
+
+/* =========================================================
+   GAME LIBRARY
+   ========================================================= */
+   .games-header {
+
+    margin-bottom:
+        22px;
+
+    text-align:
+        center;
+}
+
+.games-header h1 {
+
+    margin:
+        0;
+
+    color:
+        var(--text);
+
+    font-size:
+        28px;
+
+    font-weight:
+        700;
+
+    line-height:
+        1.2;
+}
+
+.games-header p {
+
+    margin:
+        7px 0 12px;
+
+    color:
+        var(--text-3);
+
+    font-size:
+        13px;
+
+    line-height:
+        1.5;
+}
+
+.games-header a {
+
+    color:
+        var(--text);
+
+    font-size:
+        12px;
+
+    font-weight:
+        600;
+
+    text-decoration:
+        none;
+
+    transition:
+        .2s;
+}
+
+.games-header a:hover {
+
+    color:
+        #ffffff;
+}
+
+.games-toolbar {
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+
+    gap:
+        12px;
+
+    flex-wrap:
+        wrap;
+
+    margin-bottom:
+        22px;
+}
+
+.chips {
+
+    display:
+        flex;
+
+    gap:
+        7px;
+
+    flex-wrap:
+        wrap;
+
+    align-items:
+        center;
+}
+
+.chip {
+
+    border:
+        1px solid var(--border);
+
+    background:
+        rgba(255,255,255,.025);
+
+    color:
+        var(--text-3);
+
+    padding:
+        7px 12px;
+
+    border-radius:
+        999px;
+
+    cursor:
+        pointer;
+
+    font-size:
+        10px;
+
+    font-weight:
+        600;
+
+    transition:
+        .2s;
+}
+
+.chip:hover {
+
+    color:
+        var(--text);
+
+    border-color:
+        var(--border-hover);
+
+    background:
+        rgba(255,255,255,.04);
+}
+
+.chip.active {
+
+    color:
+        white;
+
+    border-color:
+        rgba(255,255,255,.4);
+
+    background:
+        rgba(255,255,255,.12);
+}
+
+.sort {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        7px;
+}
+
+.sort select {
+
+    appearance:
+        none;
+
+    border:
+        1px solid var(--border);
+
+    outline:
+        none;
+
+    border-radius:
+        9px;
+
+    background:
+        var(--bg-3);
+
+    color:
+        var(--text-2);
+
+    padding:
+        8px 30px 8px 10px;
+
+    font-size:
+        10px;
+
+    cursor:
+        pointer;
+
+    transition:
+        .2s;
+}
+
+.sort select:hover {
+
+    border-color:
+        var(--border-hover);
+
+    color:
+        var(--text);
+}
+
+.sort select:focus {
+
+    border-color:
+        rgba(255,255,255,.4);
+
+    box-shadow:
+        0 0 0 2px rgba(255,255,255,.08);
+}
+
+#games {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(6, 182px);
+
+    gap:
+        22px 18px;
+
+    justify-content:
+        center;
+
+    width:
+        100%;
+}
+
+.game-card {
+
+    width:
+        182px;
+
+    min-width:
+        0;
+
+    transition:
+        transform .2s;
+
+    position:
+        relative;
+}
+
+.game-card:hover {
+
+    transform:
+        translateY(-3px);
+}
+
+.game-card a {
+
+    display:
+        block;
+
+    position:
+        relative;
+
+    width:
+        182px;
+
+    height:
+        182px;
+
+    text-decoration:
+        none;
+}
+
+.game-thumb {
+
+    width:
+        182px;
+
+    height:
+        182px;
+
+    display:
+        grid;
+
+    place-items:
+        center;
+
+    overflow:
+        hidden;
+
+    border-radius:
+        13px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #1a1a1a,
+            #0d0d0d
+        );
+
+    border:
+        none;
+
+    position:
+        relative;
+}
+
+.game-thumb img {
+
+    width:
+        100%;
+
+    height:
+        100%;
+
+    object-fit:
+        cover;
+
+    display:
+        block;
+
+    transition:
+        transform .25s;
+}
+
+.game-card:hover .game-thumb img {
+
+    transform:
+        scale(1.03);
+}
+
+.game-thumb .material-icons {
+
+    font-size:
+        30px;
+
+    color:
+        #aaaaaa;
+}
+
+.game-name {
+
+    position:
+        absolute;
+
+    right:
+        9px;
+
+    bottom:
+        8px;
+
+    z-index:
+        2;
+
+    display:
+        block;
+
+    max-width:
+        calc(100% - 18px);
+
+    margin:
+        0;
+
+    padding:
+        5px 8px;
+
+    border-radius:
+        7px;
+
+    background:
+        rgba(0,0,0,.72);
+
+    color:
+        var(--text);
+
+    font-size:
+        12px;
+
+    font-weight:
+        600;
+
+    line-height:
+        1.2;
+
+    overflow:
+        hidden;
+
+    text-overflow:
+        ellipsis;
+
+    white-space:
+        nowrap;
+
+    backdrop-filter:
+        blur(4px);
+}
+
+.game-meta {
+
+    display:
+        none;
+
+    color:
+        var(--text-3);
+
+    font-size:
+        10px;
+
+    margin-top:
+        3px;
+}
+
+.loading {
+
+    grid-column:
+        1 / -1;
+
+    padding:
+        60px 20px;
+
+    text-align:
+        center;
+
+    color:
+        var(--text-3);
+
+    border:
+        1px dashed var(--border);
+
+    border-radius:
+        14px;
+}
+
+@media (max-width: 1250px) {
+
+    #games {
+
+        grid-template-columns:
+            repeat(5, 182px);
+    }
+}
+
+@media (max-width: 1030px) {
+
+    #games {
+
+        grid-template-columns:
+            repeat(4, 182px);
+    }
+}
+
+@media (max-width: 830px) {
+
+    #games {
+
+        grid-template-columns:
+            repeat(3, 182px);
+    }
+}
+
+@media (max-width: 620px) {
+
+    .games-toolbar {
+
+        align-items:
+            stretch;
+
+        flex-direction:
+            column;
+    }
+
+    .chips {
+
+        justify-content:
+            center;
+    }
+
+    .sort {
+
+        justify-content:
+            center;
+    }
+
+    #games {
+
+        grid-template-columns:
+            repeat(2, 182px);
+
+        gap:
+            20px 14px;
+    }
+}
+
+@media (max-width: 410px) {
+
+    #games {
+
+        grid-template-columns:
+            repeat(1, 182px);
+    }
+}
+/* =========================================================
+   MOBILE SIDEBAR
+   ========================================================= */
+
+.sidenav {
+
+    position:
+        fixed;
+
+    inset:
+        0;
+
+    z-index:
+        2000;
+
+    pointer-events:
+        none;
+}
+
+.sidenav-panel {
+
+    position:
+        absolute;
+
+    top:
+        0;
+
+    bottom:
+        0;
+
+    left:
+        0;
+
+    width:
+        var(--sidebar-width);
+
+    transform:
+        translateX(-105%);
+
+    transition:
+        transform .28s ease;
+
+    background:
+        #0a0a0a;
+
+    border-right:
+        1px solid var(--border);
+
+    box-shadow:
+        30px 0 80px rgba(0,0,0,.45);
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    overflow-y:
+        auto;
+}
+
+.sidenav.open {
+
+    pointer-events:
+        auto;
+}
+
+.sidenav.open .sidenav-panel {
+
+    transform:
+        translateX(0);
+}
+
+.sidenav-backdrop {
+
+    position:
+        absolute;
+
+    inset:
+        0;
+
+    background:
+        rgba(0,0,0,.55);
+
+    opacity:
+        0;
+
+    transition:
+        opacity .28s;
+
+    pointer-events:
+        none;
+}
+
+.sidenav.open .sidenav-backdrop {
+
+    opacity:
+        1;
+
+    pointer-events:
+        auto;
+}
+
+.side-head {
+
+    padding:
+        20px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    border-bottom:
+        1px solid var(--border);
+}
+
+.side-nav {
+
+    padding:
+        15px;
+
+    display:
+        grid;
+
+    gap:
+        5px;
+}
+
+.side-link {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        10px;
+
+    padding:
+        11px;
+
+    border-radius:
+        9px;
+
+    color:
+        var(--text-2);
+
+    font-size:
+        12px;
+}
+
+.side-link:hover {
+
+    background:
+        rgba(255,255,255,.05);
+
+    color:
+        var(--text);
+}
+
+.side-link .material-icons {
+
+    font-size:
+        18px;
+}
+
+
+/* =========================================================
+   SURPRISE MODAL
+   ========================================================= */
+
+.modal {
+
+    position:
+        fixed;
+
+    inset:
+        0;
+
+    z-index:
+        3000;
+
+    display:
+        none;
+
+    place-items:
+        center;
+
+    padding:
+        20px;
+
+    background:
+        rgba(0,0,0,.68);
+
+    backdrop-filter:
+        blur(8px);
+}
+
+.modal.show {
+
+    display:
+        grid;
+}
+
+.modal-card {
+
+    width:
+        min(520px,100%);
+
+    padding:
+        24px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        18px;
+
+    background:
+        #0d0d0d;
+
+    box-shadow:
+        var(--shadow);
+}
+
+.modal-head {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    margin-bottom:
+        16px;
+}
+
+.modal-title {
+
+    font-family:
+        "Space Grotesk",
+        sans-serif;
+
+    font-size:
+        20px;
+}
+
+.suggestion-list {
+
+    display:
+        grid;
+
+    gap:
+        8px;
+}
+
+.suggestion {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    gap:
+        12px;
+
+    padding:
+        12px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        10px;
+
+    background:
+        rgba(255,255,255,.025);
+}
+
+.suggestion:hover {
+
+    background:
+        rgba(255,255,255,.08);
+
+    border-color:
+        rgba(255,255,255,.18);
+}
+
+.suggestion-name {
+
+    font-size:
+        12px;
+
+    font-weight:
+        700;
+}
+
+.suggestion-meta {
+
+    color:
+        var(--text-3);
+
+    font-size:
+        9px;
+
+    margin-top:
+        2px;
+}
+
+.empty {
+
+    text-align:
+        center;
+
+    color:
+        var(--text-3);
+
+    padding:
+        25px;
+
+    font-size:
+        11px;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.footer {
+
+    margin-top:
+        60px;
+
+    padding:
+        24px 0;
+
+    border-top:
+        1px solid var(--border);
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+
+    gap:
+        15px;
+
+    color:
+        var(--text-3);
+
+    font-size:
+        10px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width:1100px) {
+
+    .community-grid {
+
+        grid-template-columns:
+            repeat(3,minmax(0,1fr));
+    }
+
+    #games {
+
+        grid-template-columns:
+            repeat(4,minmax(0,1fr));
+    }
+}
+
+@media (max-width:800px) {
+
+    .nav-links {
+
+        display:
+            none;
+    }
+
+    .nav-search {
+
+        width:
+            170px;
+    }
+
+    .mobile-btn {
+
+        display:
+            grid;
+    }
+
+    .hero {
+
+        padding:
+            34px 26px;
+    }
+
+    .community-grid {
+
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
+    }
+
+    .challenge {
+
+        grid-template-columns:
+            1fr;
+    }
+
+    .challenge-side {
+
+        align-items:
+            flex-start;
+
+        gap:
+            20px;
+    }
+
+    .ends {
+
+        text-align:
+            left;
+    }
+
+    .challenge-actions {
+
+        justify-content:
+            flex-start;
+    }
+
+    .feed {
+
+        grid-template-columns:
+            1fr;
+    }
+
+    #games {
+
+        grid-template-columns:
+            repeat(3,minmax(0,1fr));
+    }
+
+    .day-right {
+
+        justify-content:
+            flex-start;
+
+        text-align:
+            left;
+    }
+}
+
+@media (max-width:560px) {
+
+    .shell {
+
+        width:
+            min(
+                calc(100% - 24px),
+                1500px
             );
-            animation: borderSweep 18s linear infinite;
-            pointer-events: none;
-        }
-
-        .hero::after {
-            content: "";
-            position: absolute;
-            width: 500px;
-            height: 500px;
-            right: -190px;
-            bottom: -300px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.08);
-            filter: blur(80px);
-            pointer-events: none;
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            max-width: 900px;
-        }
-
-        .eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--white);
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1.4px;
-            margin-bottom: 16px;
-        }
-
-        .dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: var(--white);
-            animation: pulseRing 2s infinite;
-        }
-
-        .hero-title {
-            font-family: "Space Grotesk", sans-serif;
-            font-size: clamp(52px, 8vw, 90px);
-            line-height: 0.92;
-            letter-spacing: -4.5px;
-            margin-bottom: 25px;
-            color: var(--white);
-        }
-
-        .hero-title span {
-            display: block;
-            background: linear-gradient(90deg, #666666, #ffffff, #888888, #ffffff);
-            background-size: 250% 250%;
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            animation: shimmerText 6s ease infinite;
-        }
-
-        /* =========================================================
-           HERO ACTIONS (MAGNETIC BUTTONS)
-           ========================================================= */
-
-        .hero-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .action {
-            position: relative;
-            overflow: hidden;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            min-height: 42px;
-            padding: 0 16px;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-2);
-            font-size: 11px;
-            font-weight: 700;
-            transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
-                        background 0.2s,
-                        color 0.2s,
-                        border-color 0.2s;
-            cursor: pointer;
-        }
-
-        .action:hover {
-            color: var(--white);
-            border-color: var(--white);
-            background: rgba(255, 255, 255, 0.14);
-        }
-
-        .action.primary {
-            background: var(--white);
-            border-color: var(--white);
-            color: var(--black);
-        }
-
-        .action.primary:hover {
-            background: #e5e5e5;
-            color: var(--black);
-        }
-
-        .action .material-icons {
-            font-size: 17px;
-        }
-
-        /* =========================================================
-           STATS
-           ========================================================= */
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(2, 180px);
-            gap: 10px;
-            margin-top: 34px;
-        }
-
-        .stat {
-            padding: 15px 17px;
-            border: 1px solid var(--border);
-            border-radius: 13px;
-            background: rgba(255, 255, 255, 0.04);
-            transition: transform 0.25s ease, border-color 0.25s ease;
-        }
-
-        .stat:hover {
-            transform: translateY(-3px);
-            border-color: var(--white);
-        }
-
-        .stat-number {
-            font-family: "Space Grotesk", sans-serif;
-            font-size: 27px;
-            font-weight: 700;
-            color: var(--white);
-        }
-
-        .stat-label {
-            margin-top: 2px;
-            color: var(--text-3);
-            font-size: 9px;
-            text-transform: uppercase;
-            letter-spacing: 0.7px;
-        }
-
-        /* =========================================================
-           SECTIONS
-           ========================================================= */
-
-        .section {
-            margin-top: 45px;
-        }
-
-        .section-head {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            gap: 20px;
-            margin-bottom: 17px;
-        }
-
-        .section-title {
-            font-family: "Space Grotesk", sans-serif;
-            font-size: 25px;
-            letter-spacing: -0.7px;
-            color: var(--white);
-        }
-
-        .section-sub {
-            color: var(--text-3);
-            font-size: 11px;
-            margin-top: 4px;
-        }
-
-        .section-link {
-            color: var(--white);
-            font-size: 10px;
-            font-weight: 700;
-            text-decoration: underline;
-            text-underline-offset: 3px;
-        }
-
-        /* =========================================================
-           COMMUNITY
-           ========================================================= */
-
-        .community-grid {
-            display: grid;
-            grid-template-columns: repeat(6, minmax(0, 1fr));
-            gap: 10px;
-        }
-
-        .feature {
-            position: relative;
-            min-height: 135px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 16px;
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            background: rgba(255, 255, 255, 0.03);
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-                        border-color 0.25s,
-                        background 0.25s;
-        }
-
-        .feature:hover {
-            transform: translateY(-6px);
-            border-color: var(--white);
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .feature-icon {
-            width: 34px;
-            height: 34px;
-            display: grid;
-            place-items: center;
-            border-radius: 10px;
-            background: var(--white);
-            color: var(--black);
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .feature:hover .feature-icon {
-            transform: scale(1.12) rotate(6deg);
-        }
-
-        .feature-icon .material-icons {
-            font-size: 18px;
-        }
-
-        .feature-name {
-            font-family: "Space Grotesk", sans-serif;
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--white);
-        }
-
-        .feature-desc {
-            color: var(--text-3);
-            font-size: 9px;
-            line-height: 1.45;
-            margin-top: 3px;
-        }
-
-        .new {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 3px 6px;
-            border-radius: 5px;
-            background: var(--white);
-            color: var(--black);
-            font-size: 7px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* =========================================================
-           QUICK LINKS
-           ========================================================= */
-
-        .quick-links {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 7px;
-        }
-
-        .quick-link {
-            padding: 8px 11px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.04);
-            color: var(--text-2);
-            font-size: 9px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, background 0.2s, color 0.2s, border-color 0.2s;
-        }
-
-        .quick-link:hover {
-            color: var(--black);
-            border-color: var(--white);
-            background: var(--white);
-            transform: translateY(-2px);
-        }
-
-        /* =========================================================
-           CHRISTMAS CHALLENGE
-           ========================================================= */
-
-        .challenge {
-            position: relative;
-            overflow: hidden;
-            display: grid;
-            grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
-            gap: 20px;
-            padding: 27px;
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            border-radius: 18px;
-            background:
-                radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.12), transparent 40%),
-                rgba(255, 255, 255, 0.03);
-            transition: border-color 0.3s;
-        }
-
-        .challenge:hover {
-            border-color: var(--white);
-        }
-
-        .challenge-label {
-            color: var(--white);
-            font-size: 9px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-        }
-
-        .challenge-title {
-            font-family: "Space Grotesk", sans-serif;
-            font-size: 27px;
-            letter-spacing: -0.7px;
-            color: var(--white);
-        }
-
-        .challenge-sub {
-            color: var(--text-3);
-            font-size: 11px;
-            margin-top: 3px;
-        }
-
-        .race-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 7px;
-            margin-top: 20px;
-        }
-
-        .race-stat {
-            padding: 10px;
-            border: 1px solid var(--border);
-            border-radius: 9px;
-            background: rgba(255, 255, 255, 0.03);
-        }
-
-        .race-label {
-            color: var(--text-3);
-            font-size: 8px;
-        }
-
-        .race-value {
-            margin-top: 2px;
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--white);
-        }
-
-        .challenge-side {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-
-        .ends {
-            color: var(--text-3);
-            font-size: 9px;
-            text-align: right;
-        }
-
-        .timer {
-            font-family: monospace;
-            font-size: 14px;
-            color: var(--white);
-            margin-top: 2px;
-        }
-
-        .challenge-actions {
-            display: flex;
-            gap: 7px;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-        }
-
-        .small-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 9px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-2);
-            font-size: 9px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s, color 0.2s, border-color 0.2s;
-        }
-
-        .small-btn:hover {
-            color: var(--white);
-            border-color: var(--white);
-            background: rgba(255, 255, 255, 0.12);
-            transform: translateY(-2px);
-        }
-
-        .small-btn.primary {
-            background: var(--white);
-            border-color: var(--white);
-            color: var(--black);
-        }
-
-        .small-btn.primary:hover {
-            background: #e0e0e0;
-            color: var(--black);
-        }
-
-        /* =========================================================
-           NEWEST / FRIENDS
-           ========================================================= */
-
-        .feed {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) 280px;
-            gap: 15px;
-        }
-
-        .feed-card {
-            padding: 18px;
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            background: rgba(255, 255, 255, 0.03);
-            transition: border-color 0.25s;
-        }
-
-        .feed-card:hover {
-            border-color: var(--border-hover);
-        }
-
-        .feed-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        .feed-title {
-            font-family: "Space Grotesk", sans-serif;
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--white);
-        }
-
-        .feed-time {
-            color: var(--text-3);
-            font-size: 9px;
-        }
-
-        .feed-body {
-            margin-top: 12px;
-            color: var(--text-2);
-            font-size: 11px;
-        }
-
-        .feed-body strong {
-            color: var(--white);
-        }
-
-        .feed-action {
-            display: inline-block;
-            margin-top: 12px;
-            color: var(--white);
-            font-size: 10px;
-            font-weight: 700;
-            text-decoration: underline;
-            text-underline-offset: 3px;
-        }
-
-        /* =========================================================
-           GAME LIBRARY (3D TILT + STAGGERED ENTRANCE)
-           ========================================================= */
-
-        .games-header {
-            margin-bottom: 22px;
-            text-align: center;
-        }
-
-        .games-header h1 {
-            margin: 0;
-            color: var(--white);
-            font-family: "Space Grotesk", sans-serif;
-            font-size: 28px;
-            font-weight: 700;
-            line-height: 1.2;
-        }
-
-        .games-header p {
-            margin: 7px 0 12px;
-            color: var(--text-3);
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .games-toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 22px;
-        }
-
-        .chips {
-            display: flex;
-            gap: 7px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .chip {
-            border: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.04);
-            color: var(--text-2);
-            padding: 7px 14px;
-            border-radius: 999px;
-            cursor: pointer;
-            font-size: 10px;
-            font-weight: 600;
-            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s, color 0.2s, border-color 0.2s;
-        }
-
-        .chip:hover {
-            color: var(--white);
-            border-color: var(--border-hover);
-            background: rgba(255, 255, 255, 0.08);
-            transform: translateY(-2px);
-        }
-
-        .chip.active {
-            color: var(--black);
-            border-color: var(--white);
-            background: var(--white);
-        }
-
-        .sort {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-        }
-
-        .sort select {
-            border: 1px solid var(--border);
-            outline: none;
-            border-radius: 9px;
-            background: var(--bg-3);
-            color: var(--white);
-            padding: 8px 12px;
-            font-size: 10px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .sort select:hover {
-            border-color: var(--white);
-        }
-
-        #games {
-            display: grid;
-            grid-template-columns: repeat(6, 182px);
-            gap: 22px 18px;
-            justify-content: center;
-            width: 100%;
-            perspective: 1000px;
-        }
-
-        .game-card {
-            width: 182px;
-            min-width: 0;
-            position: relative;
-            opacity: 0;
-            animation: cardPopIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            animation-delay: calc(var(--i, 0) * 45ms);
-            transform-style: preserve-3d;
-            transition: transform 0.15s ease-out;
-        }
-
-        .game-card a {
-            display: block;
-            position: relative;
-            width: 182px;
-            height: 182px;
-            text-decoration: none;
-        }
-
-        .game-thumb {
-            width: 182px;
-            height: 182px;
-            display: grid;
-            place-items: center;
-            overflow: hidden;
-            border-radius: 13px;
-            background: linear-gradient(135deg, #1b1b1b, #080808);
-            border: 1px solid var(--border);
-            position: relative;
-            transition: border-color 0.25s, box-shadow 0.25s;
-        }
-
-        .card-glare {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.25), transparent 65%);
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .game-card:hover .card-glare {
-            opacity: 1;
-        }
-
-        .game-card:hover .game-thumb {
-            border-color: var(--white);
-            box-shadow: 0 18px 36px rgba(255, 255, 255, 0.14);
-        }
-
-        .game-thumb .material-icons {
-            font-size: 38px;
-            color: var(--white);
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .game-card:hover .game-thumb .material-icons {
-            transform: scale(1.18) translateZ(20px);
-        }
-
-        .game-name {
-            position: absolute;
-            right: 9px;
-            bottom: 8px;
-            z-index: 2;
-            display: block;
-            max-width: calc(100% - 18px);
-            margin: 0;
-            padding: 5px 8px;
-            border-radius: 7px;
-            background: rgba(0, 0, 0, 0.88);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: var(--white);
-            font-size: 12px;
-            font-weight: 600;
-            line-height: 1.2;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            backdrop-filter: blur(4px);
-            transition: background 0.2s, color 0.2s;
-        }
-
-        .game-card:hover .game-name {
-            background: var(--white);
-            color: var(--black);
-        }
-
-        .live-badge {
-            position: absolute;
-            top: 9px;
-            left: 9px;
-            z-index: 4;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 3px 7px;
-            border-radius: 6px;
-            background: rgba(0, 0, 0, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            font-size: 9px;
-            font-weight: 700;
-            backdrop-filter: blur(4px);
-        }
-
-        .live-badge .pulse-dot {
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: #ffffff;
-            animation: pulseRing 2s infinite;
-        }
-
-        .loading {
-            grid-column: 1 / -1;
-            padding: 60px 20px;
-            text-align: center;
-            color: var(--text-3);
-            border: 1px dashed var(--border);
-            border-radius: 14px;
-        }
-
-        /* =========================================================
-           SNOWFLAKE FALLING PARTICLES
-           ========================================================= */
-
-        .snowflake {
-            position: fixed;
-            top: -20px;
-            background: #ffffff;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            opacity: 0.8;
-            animation: floatSnowflake linear infinite;
-        }
-
-        /* =========================================================
-           MOBILE SIDEBAR
-           ========================================================= */
-
-        .sidenav {
-            position: fixed;
-            inset: 0;
-            z-index: 2000;
-            pointer-events: none;
-        }
-
-        .sidenav-panel {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            width: var(--sidebar-width);
-            transform: translateX(-105%);
-            transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
-            background: #080808;
-            border-right: 1px solid var(--border);
-            box-shadow: 30px 0 80px rgba(0, 0, 0, 0.85);
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-        }
-
-        .sidenav.open {
-            pointer-events: auto;
-        }
-
-        .sidenav.open .sidenav-panel {
-            transform: translateX(0);
-        }
-
-        .sidenav-backdrop {
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.72);
-            opacity: 0;
-            transition: opacity 0.28s;
-            pointer-events: none;
-        }
-
-        .sidenav.open .sidenav-backdrop {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .side-head {
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .side-nav {
-            padding: 15px;
-            display: grid;
-            gap: 5px;
-        }
-
-        .side-link {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 11px;
-            border-radius: 9px;
-            color: var(--text-2);
-            font-size: 12px;
-            transition: 0.2s;
-        }
-
-        .side-link:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--white);
-        }
-
-        .side-link .material-icons {
-            font-size: 18px;
-        }
-
-        /* =========================================================
-           SURPRISE MODAL & TOAST
-           ========================================================= */
-
-        .modal {
-            position: fixed;
-            inset: 0;
-            z-index: 3000;
-            display: none;
-            place-items: center;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(8px);
-        }
-
-        .modal.show {
-            display: grid;
-        }
-
-        .modal-card {
-            width: min(520px, 100%);
-            padding: 24px;
-            border: 1px solid var(--border-hover);
-            border-radius: 18px;
-            background: #0a0a0a;
-            box-shadow: var(--shadow);
-            animation: modalSpring 0.38s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .modal-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-        }
-
-        .modal-title {
-            font-family: "Space Grotesk", sans-serif;
-            font-size: 20px;
-            color: var(--white);
-        }
-
-        .suggestion-list {
-            display: grid;
-            gap: 8px;
-        }
-
-        .suggestion {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.04);
-            transition: 0.2s;
-        }
-
-        .suggestion:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: var(--white);
-            transform: translateX(4px);
-        }
-
-        .suggestion-name {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--white);
-        }
-
-        .suggestion-meta {
-            color: var(--text-3);
-            font-size: 9px;
-            margin-top: 2px;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            z-index: 4000;
-            padding: 12px 18px;
-            border-radius: 10px;
-            background: var(--white);
-            color: var(--black);
-            font-size: 12px;
-            font-weight: 700;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-            transform: translateY(120%);
-            opacity: 0;
-            transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        /* =========================================================
-           FOOTER
-           ========================================================= */
-
-        .footer {
-            margin-top: 60px;
-            padding: 24px 0;
-            border-top: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            color: var(--text-3);
-            font-size: 10px;
-        }
-
-        /* =========================================================
-           RESPONSIVE
-           ========================================================= */
-
-        @media (max-width: 1250px) {
-            #games {
-                grid-template-columns: repeat(5, 182px);
-            }
-        }
-
-        @media (max-width: 1100px) {
-            .community-grid {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-            }
-        }
-
-        @media (max-width: 1030px) {
-            #games {
-                grid-template-columns: repeat(4, 182px);
-            }
-        }
-
-        @media (max-width: 830px) {
-            #games {
-                grid-template-columns: repeat(3, 182px);
-            }
-        }
-
-        @media (max-width: 800px) {
-            .nav-links {
-                display: none;
-            }
-
-            .nav-search {
-                width: 170px;
-            }
-
-            .mobile-btn {
-                display: grid;
-            }
-
-            .hero {
-                padding: 34px 26px;
-            }
-
-            .community-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-
-            .challenge {
-                grid-template-columns: 1fr;
-            }
-
-            .challenge-side {
-                align-items: flex-start;
-                gap: 20px;
-            }
-
-            .ends {
-                text-align: left;
-            }
-
-            .challenge-actions {
-                justify-content: flex-start;
-            }
-
-            .feed {
-                grid-template-columns: 1fr;
-            }
-
-            .day-right {
-                justify-content: flex-start;
-                text-align: left;
-            }
-        }
-
-        @media (max-width: 620px) {
-            .games-toolbar {
-                align-items: stretch;
-                flex-direction: column;
-            }
-
-            .chips,
-            .sort {
-                justify-content: center;
-            }
-
-            #games {
-                grid-template-columns: repeat(2, 182px);
-                gap: 20px 14px;
-            }
-
-            .footer {
-                flex-direction: column;
-                text-align: center;
-            }
-        }
-
-        @media (max-width: 410px) {
-            #games {
-                grid-template-columns: repeat(1, 182px);
-            }
-        }
-    </style>
+
+        padding-top:
+            14px;
+    }
+
+    .nav-inner {
+
+        width:
+            calc(100% - 24px);
+    }
+
+    .brand-tag {
+
+        display:
+            none;
+    }
+
+    .nav-search {
+
+        width:
+            40px;
+
+        padding:
+            0;
+
+        justify-content:
+            center;
+    }
+
+    .nav-search input,
+    .nav-search .kbd {
+
+        display:
+            none;
+    }
+
+    .hero-title {
+
+        font-size:
+            clamp(
+                48px,
+                15vw,
+                72px
+            );
+    }
+
+    .hero-actions {
+
+        flex-direction:
+            column;
+    }
+
+    .action {
+
+        justify-content:
+            center;
+    }
+
+    .stats {
+
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+    .community-grid {
+
+        grid-template-columns:
+            1fr;
+    }
+
+    #games {
+
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
+
+        gap:
+            18px 10px;
+    }
+
+    .race-stats {
+
+        grid-template-columns:
+            1fr;
+    }
+
+    .daybar {
+
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+
+        gap:
+            8px;
+    }
+
+    .day-right {
+
+        justify-content:
+            flex-start;
+
+        width:
+            100%;
+    }
+
+    .schedule-live,
+    .weather-live {
+
+        flex: 1;
+
+        justify-content:
+            center;
+    }
+
+    .footer {
+
+        flex-direction:
+            column;
+
+        align-items:
+            flex-start;
+    }
+}
+
+
+/* =========================================================
+   SNOW PARTICLES
+   ========================================================= */
+
+.snow-container {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.snowflake {
+    position: absolute;
+    top: -20px;
+    background: #ffffff;
+    border-radius: 50%;
+    opacity: 0.7;
+    user-select: none;
+    pointer-events: none;
+    animation-name: snowfall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    will-change: transform;
+}
+
+@keyframes snowfall {
+    0% {
+        transform: translateY(-10px) translateX(0) rotate(0deg);
+        opacity: 0.85;
+    }
+    50% {
+        opacity: 0.6;
+    }
+    100% {
+        transform: translateY(105vh) translateX(var(--drift, 30px)) rotate(360deg);
+        opacity: 0.15;
+    }
+}
+
+</style>
 </head>
 
+
 <body>
-    <!-- Ambient Background, GIF Wallpaper & Particle Canvas -->
-    <div class="bg-stage">
-        <img src="images/wallpaper1.gif" alt="Wallpaper" class="wallpaper-layer" onerror="this.style.display='none'">
-        <canvas id="particleCanvas"></canvas>
-        <div class="grid-bg"></div>
-        <div class="scanline"></div>
-        <div class="glow"></div>
-        <div class="glow b"></div>
-    </div>
 
-    <!-- Navigation -->
-    <header class="nav">
-        <div class="nav-inner">
-            <button class="icon-btn mobile-btn" id="openMenuBtn" aria-label="Open menu">
-                <span class="material-icons">menu</span>
-            </button>
 
-            <a href="#" class="brand">
-                <div class="brand-mark">
-                    <span class="material-icons" style="font-size: 20px;">ac_unit</span>
-                </div>
-                <span class="brand-name">Snowballz</span>
-                <span class="brand-tag">XMAS</span>
+<!-- =======================================================
+     BACKGROUND
+     ======================================================= -->
+
+<div class="bg-stage">
+
+    <div class="grid-bg"></div>
+
+    <div class="glow"></div>
+
+    <div class="glow b"></div>
+
+</div>
+
+<!-- SNOW PARTICLES -->
+<div class="snow-container" id="snowContainer" aria-hidden="true"></div>
+
+
+
+<!-- =======================================================
+     NAVIGATION
+     ======================================================= -->
+
+<header class="nav">
+
+    <div class="nav-inner">
+
+
+        <a
+            href="./index.html"
+            class="brand"
+            aria-label="SnowBallz home"
+        >
+
+            <div class="brand-mark">
+
+                <img
+                    class="brand-logo"
+                    src="./assets/favicon.svg"
+                    alt=""
+                >
+
+            </div>
+
+            <div class="brand-name">
+                SnowBallz
+            </div>
+
+            <div class="brand-tag">
+                SNOW
+            </div>
+
+        </a>
+
+
+        <nav class="nav-links">
+
+            <a
+                href="./index.html"
+                class="nav-link active"
+            >
+                Home
             </a>
 
-            <nav class="nav-links">
-                <a href="#" class="nav-link active">Home</a>
-                <a href="#library" class="nav-link">Games</a>
-                <a href="#community" class="nav-link">Community</a>
-                <a href="#challenge" class="nav-link">X-Mas Rush</a>
-            </nav>
+            <a
+                href="./games.html"
+                class="nav-link"
+            >
+                Games
+            </a>
 
-            <div class="nav-spacer"></div>
+            <a
+                href="./chat.html"
+                class="nav-link"
+            >
+                Chat
+            </a>
 
-            <div class="nav-search">
-                <span class="material-icons" style="font-size: 16px;">search</span>
-                <input type="text" id="searchInput" placeholder="Search snow vault...">
-                <span class="kbd">/</span>
-            </div>
+            <a
+                href="./leaderboard.html"
+                class="nav-link"
+            >
+                Leaderboard
+            </a>
 
-            <button class="icon-btn" id="surpriseBtn" title="Surprise Game">
-                <span class="material-icons">casino</span>
-            </button>
-        </div>
-    </header>
+        </nav>
 
-    <!-- Mobile Sidebar -->
-    <aside class="sidenav" id="sidenav">
-        <div class="sidenav-backdrop" id="closeMenuBackdrop"></div>
-        <div class="sidenav-panel">
-            <div class="side-head">
-                <span class="brand-name">Snowballz</span>
-                <button class="icon-btn" id="closeMenuBtn" aria-label="Close menu">
-                    <span class="material-icons">close</span>
-                </button>
-            </div>
-            <nav class="side-nav">
-                <a href="#" class="side-link"><span class="material-icons">home</span> Home</a>
-                <a href="#library" class="side-link"><span class="material-icons">grid_view</span> Game Library</a>
-                <a href="#community" class="side-link"><span class="material-icons">groups</span> Community</a>
-                <a href="#challenge" class="side-link"><span class="material-icons">ac_unit</span> Holiday Challenges</a>
-            </nav>
-        </div>
-    </aside>
 
-    <!-- Main Container -->
-    <main class="shell">
-        <!-- Day / Schedule / Weather Bar -->
-        <div class="daybar">
-            <div class="day-left">
-                <span class="day-today" id="dayName">MONDAY</span>
-                <span class="day-date" id="fullDate">December 21, 2026</span>
-            </div>
-            <div class="day-right">
-                <div class="schedule-live">
-                    <span class="material-icons">ac_unit</span>
-                    <span class="schedule-period">Winter Fest</span>
-                    <span class="schedule-countdown" id="liveClock">21:21:00</span>
-                </div>
-                <div class="weather-live">
-                    <span class="material-icons">cloudy_snowing</span>
-                    <span class="weather-temp">24°F</span>
-                    <span class="weather-description">Snowfall</span>
-                </div>
-            </div>
-        </div>
+        <div class="nav-spacer"></div>
 
-        <!-- Hero Section -->
-        <section class="hero reveal">
-            <div class="hero-content">
-                <div class="eyebrow">
-                    <span class="dot"></span>
-                    Holiday Vault · Festive Monochrome Play
-                </div>
-                <h1 class="hero-title" id="heroScramble">
-                    Cozy arcade games.
-                    <span>Zero limits.</span>
-                </h1>
-                <div class="hero-actions">
-                    <a href="#library" class="action primary magnetic">
-                        <span class="material-icons">play_arrow</span>
-                        Explore Vault
-                    </a>
-                    <button class="action magnetic" id="heroRandomBtn">
-                        <span class="material-icons">shuffle</span>
-                        Random Game
-                    </button>
-                    <a href="#challenge" class="action magnetic">
-                        <span class="material-icons">bolt</span>
-                        Holiday Rush
-                    </a>
-                </div>
 
-                <div class="stats">
-                    <div class="stat">
-                        <div class="stat-number" id="totalGamesStat" data-target="12" data-suffix="">12</div>
-                        <div class="stat-label">Holiday Titles</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-number" id="liveOnlineCount">1</div>
-                        <div class="stat-label">Live Online Now</div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <label class="nav-search">
 
-        <!-- Community Grid -->
-        <section class="section reveal" id="community">
-            <div class="section-head">
-                <div>
-                    <h2 class="section-title">Winter Lodge Hub</h2>
-                    <p class="section-sub">Connect, compete, and climb the holiday monochrome leaderboards.</p>
-                </div>
-                <a href="#library" class="section-link">View All Features →</a>
-            </div>
+            <span class="material-icons">
+                search
+            </span>
 
-            <div class="community-grid">
-                <a href="#challenge" class="feature">
-                    <span class="new">Live</span>
-                    <div class="feature-icon"><span class="material-icons">emoji_events</span></div>
-                    <div>
-                        <div class="feature-name">Snow Tourney</div>
-                        <div class="feature-desc">Weekly bracket speedruns.</div>
-                    </div>
-                </a>
-                <a href="#library" class="feature">
-                    <div class="feature-icon"><span class="material-icons">forum</span></div>
-                    <div>
-                        <div class="feature-name">Lodge Chat</div>
-                        <div class="feature-desc">Real-time snow lobbies & squads.</div>
-                    </div>
-                </a>
-                <a href="#library" class="feature">
-                    <div class="feature-icon"><span class="material-icons">leaderboard</span></div>
-                    <div>
-                        <div class="feature-name">Rankings</div>
-                        <div class="feature-desc">Top high scores on winter titles.</div>
-                    </div>
-                </a>
-                <a href="#library" class="feature">
-                    <span class="new">New</span>
-                    <div class="feature-icon"><span class="material-icons">auto_awesome</span></div>
-                    <div>
-                        <div class="feature-name">Igloo Rooms</div>
-                        <div class="feature-desc">Host private matches with friends.</div>
-                    </div>
-                </a>
-                <a href="#library" class="feature">
-                    <div class="feature-icon"><span class="material-icons">bug_report</span></div>
-                    <div>
-                        <div class="feature-name">Wishlist</div>
-                        <div class="feature-desc">Vote on next week's game additions.</div>
-                    </div>
-                </a>
-                <a href="#library" class="feature">
-                    <div class="feature-icon"><span class="material-icons">bolt</span></div>
-                    <div>
-                        <div class="feature-name">Instant Play</div>
-                        <div class="feature-desc">Zero downloads, pure browser speed.</div>
-                    </div>
-                </a>
-            </div>
-        </section>
+            <input
+                id="globalSearch"
+                type="search"
+                placeholder="Search games..."
+                autocomplete="off"
+            >
 
-        <!-- Weekly Challenge -->
-        <section class="section reveal" id="challenge">
-            <div class="challenge">
-                <div>
-                    <div class="challenge-label">Featured X-Mas Challenge</div>
-                    <h3 class="challenge-title">Snowball Blitz · Glacier Circuit #25</h3>
-                    <p class="challenge-sub">Navigate the icy curves before midnight to secure your holiday badge.</p>
+            <span class="kbd">
+                ⌘K
+            </span>
 
-                    <div class="race-stats">
-                        <div class="race-stat">
-                            <div class="race-label">FASTEST RUN</div>
-                            <div class="race-value">00:31.204</div>
-                        </div>
-                        <div class="race-stat">
-                            <div class="race-label">PARTICIPANTS</div>
-                            <div class="race-value">842 Racers</div>
-                        </div>
-                        <div class="race-stat">
-                            <div class="race-label">DIFFICULTY</div>
-                            <div class="race-value">Blizzard</div>
-                        </div>
-                    </div>
-                </div>
+        </label>
 
-                <div class="challenge-side">
-                    <div class="ends">
-                        EVENT ENDS
-                        <div class="timer" id="challengeTimer">05d 12h 19m</div>
-                    </div>
-                    <div class="challenge-actions">
-                        <button class="small-btn" id="copyCodeBtn">Copy Track Code</button>
-                        <button class="small-btn primary" id="launchTrackBtn">Race Now</button>
-                    </div>
-                </div>
-            </div>
-        </section>
 
-        <!-- Activity Feed -->
-        <section class="section reveal">
-            <div class="feed">
-                <div class="feed-card">
-                    <div class="feed-top">
-                        <div class="feed-title">Holiday Releases</div>
-                        <div class="feed-time">Updated Today</div>
-                    </div>
-                    <div class="feed-body">
-                        Added <strong>Snowball Slalom</strong>, <strong>Winter 2048</strong>, and <strong>Ice Velocity Pro</strong> with full touch controls.
-                    </div>
-                    <a href="#library" class="feed-action">Browse Holiday Drops →</a>
-                </div>
+        <button
+            class="icon-btn"
+            id="randomTop"
+            title="Surprise me"
+            type="button"
+        >
 
-                <div class="feed-card">
-                    <div class="feed-top">
-                        <div class="feed-title">Quick Filters</div>
-                        <div class="feed-time">Tags</div>
-                    </div>
-                    <div class="quick-links" style="margin-top: 12px;">
-                        <button class="quick-link filter-jump" data-cat="racing">Racing</button>
-                        <button class="quick-link filter-jump" data-cat="arcade">Arcade</button>
-                        <button class="quick-link filter-jump" data-cat="puzzle">Puzzle</button>
-                        <button class="quick-link filter-jump" data-cat="action">Action</button>
-                        <button class="quick-link filter-jump" data-cat="all">All Games</button>
-                    </div>
-                </div>
-            </div>
-        </section>
+            <span class="material-icons">
+                shuffle
+            </span>
 
-        <!-- Game Library -->
-        <section class="section reveal" id="library">
-            <div class="games-header">
-                <h1>Snowballz GameVault</h1>
-                <p>Select any holiday title below to launch immediately in monochrome mode.</p>
-            </div>
+        </button>
 
-            <div class="games-toolbar">
-                <div class="chips" id="categoryChips">
-                    <button class="chip active" data-category="all">All Games</button>
-                    <button class="chip" data-category="action">Action</button>
-                    <button class="chip" data-category="racing">Racing</button>
-                    <button class="chip" data-category="puzzle">Puzzle</button>
-                    <button class="chip" data-category="arcade">Arcade</button>
-                </div>
 
-                <div class="sort">
-                    <select id="sortSelect" aria-label="Sort games">
-                        <option value="popular">Sort: Popular</option>
-                        <option value="az">Sort: A – Z</option>
-                        <option value="za">Sort: Z – A</option>
-                    </select>
-                </div>
-            </div>
+        <button
+            class="icon-btn mobile-btn"
+            id="menuButton"
+            title="Menu"
+            type="button"
+        >
 
-            <div id="games"></div>
-        </section>
+            <span class="material-icons">
+                menu
+            </span>
 
-        <!-- Footer -->
-        <footer class="footer">
-            <div>© 2026 Snowballz · X-Mas Monochrome Edition</div>
-            <div>Built for cozy winter gaming sessions.</div>
-        </footer>
-    </main>
+        </button>
 
-    <!-- Surprise Modal -->
-    <div class="modal" id="surpriseModal">
-        <div class="modal-card">
-            <div class="modal-head">
-                <h3 class="modal-title">Random Holiday Pick</h3>
-                <button class="icon-btn" id="closeModalBtn" aria-label="Close modal">
-                    <span class="material-icons">close</span>
-                </button>
-            </div>
-            <div class="suggestion-list" id="suggestionList"></div>
-        </div>
+
     </div>
 
-    <!-- Notification Toast -->
-    <div class="toast" id="toast"></div>
+</header>
 
-    <script>
-        // =========================================================
-        // SUPABASE LIVE PLAYER COUNTER CONFIG
-        // =========================================================
-        const SUPABASE_URL = "https://YOUR_PROJECT_ID.supabase.co";
-        const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
 
-        const isSupabaseConfigured =
-            SUPABASE_URL.startsWith("https://") &&
-            !SUPABASE_URL.includes("YOUR_PROJECT_ID") &&
-            SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY";
+<!-- =======================================================
+     MOBILE SIDEBAR
+     ======================================================= -->
 
-        const sb = isSupabaseConfigured
-            ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-            : null;
+<div
+    class="sidenav"
+    id="sideNav"
+>
 
-        let activeGame = null;
-        let presenceChannel = null;
-        let liveGameCounts = {};
+    <div
+        class="sidenav-backdrop"
+        id="sideBackdrop"
+    ></div>
 
-        const gamesData = [
-            { id: 1, name: "Snowball Slalom", category: "racing", icon: "ac_unit", plays: 980 },
-            { id: 2, name: "Ice Velocity", category: "arcade", icon: "trending_down", plays: 920 },
-            { id: 3, name: "Winter 2048", category: "puzzle", icon: "grid_on", plays: 870 },
-            { id: 4, name: "Sleigh Drift", category: "racing", icon: "speed", plays: 850 },
-            { id: 5, name: "Yeti Dash", category: "action", icon: "sports_martial_arts", plays: 810 },
-            { id: 6, name: "Frost Pulse", category: "arcade", icon: "hexagon", plays: 790 },
-            { id: 7, name: "Igloo Chess", category: "puzzle", icon: "extension", plays: 760 },
-            { id: 8, name: "Blizzard Runner", category: "action", icon: "directions_run", plays: 740 },
-            { id: 9, name: "Snow Pong", category: "arcade", icon: "sports_tennis", plays: 710 },
-            { id: 10, name: "Snowmobile X3M", category: "racing", icon: "two_wheeler", plays: 690 },
-            { id: 11, name: "Holiday Mines", category: "puzzle", icon: "flag", plays: 650 },
-            { id: 12, name: "Aurora Void", category: "action", icon: "rocket_launch", plays: 630 }
+
+    <aside class="sidenav-panel">
+
+
+        <div class="side-head">
+
+
+            <div class="brand">
+
+                <div class="brand-mark">
+
+                    <img
+                        class="brand-logo"
+                        src="./assets/favicon.svg"
+                        alt=""
+                    >
+
+                </div>
+
+                <div class="brand-name">
+                    SnowBallz
+                </div>
+
+            </div>
+
+
+            <button
+                class="icon-btn"
+                id="closeMenu"
+                type="button"
+            >
+
+                <span class="material-icons">
+                    close
+                </span>
+
+            </button>
+
+
+        </div>
+
+
+        <nav class="side-nav">
+
+            <a href="./index.html" class="side-link">
+                <span class="material-icons">home</span>
+                Home
+            </a>
+
+            <a href="./games.html" class="side-link">
+                <span class="material-icons">sports_esports</span>
+                Games
+            </a>
+
+            <a href="./chat.html" class="side-link">
+                <span class="material-icons">chat</span>
+                Chat
+            </a>
+
+            <a href="./friends.html" class="side-link">
+                <span class="material-icons">people</span>
+                Friends
+            </a>
+
+            <a href="./leaderboard.html" class="side-link">
+                <span class="material-icons">leaderboard</span>
+                Leaderboard
+            </a>
+
+            <a href="./shop.html" class="side-link">
+                <span class="material-icons">storefront</span>
+                Shop
+            </a>
+
+            <a href="./challenge.html" class="side-link">
+                <span class="material-icons">flag</span>
+                Challenge
+            </a>
+
+            <a href="./polls.html" class="side-link">
+                <span class="material-icons">poll</span>
+                Polls
+            </a>
+
+            <a href="./schedule.html" class="side-link">
+                <span class="material-icons">calendar_month</span>
+                Schedule
+            </a>
+
+            <a href="./status.html" class="side-link">
+                <span class="material-icons">assignment</span>
+                Requests
+            </a>
+
+            <a href="./music.html" class="side-link">
+                <span class="material-icons">music_note</span>
+                Music
+            </a>
+
+            <a href="./unblocker.html" class="side-link">
+                <span class="material-icons">language</span>
+                Browser
+            </a>
+
+            <a href="./settings.html" class="side-link">
+                <span class="material-icons">settings</span>
+                Settings
+            </a>
+
+            <a href="./saves.html" class="side-link">
+                <span class="material-icons">bookmark</span>
+                Saves
+            </a>
+
+        </nav>
+
+
+    </aside>
+
+</div>
+
+
+<!-- =======================================================
+     MAIN
+     ======================================================= -->
+
+<main class="shell">
+
+
+    <!-- ===================================================
+         TODAY + LIVE SCHEDULE + WEATHER
+         =================================================== -->
+
+    <section class="daybar">
+
+
+        <div class="day-left">
+
+            <span class="day-today">
+                today ·
+            </span>
+
+            <span
+                class="day-date"
+                id="dateText"
+            >
+                FRI · OCT 2
+            </span>
+
+        </div>
+
+
+        <div class="day-right">
+
+
+            <div
+                class="schedule-live"
+                title="Current school schedule"
+            >
+
+                <span class="material-icons">
+                    schedule
+                </span>
+
+                <span
+                    class="schedule-period"
+                    id="schedulePeriod"
+                >
+                    Checking schedule...
+                </span>
+
+                <span
+                    class="schedule-countdown"
+                    id="scheduleCountdown"
+                >
+                    --
+                </span>
+
+            </div>
+
+
+            <div
+                class="weather-live"
+                title="Current weather"
+            >
+
+                <span
+                    class="material-icons"
+                    id="weatherIcon"
+                >
+                    cloud
+                </span>
+
+                <span
+                    class="weather-temp"
+                    id="weatherTemp"
+                >
+                    --°
+                </span>
+
+                <span
+                    class="weather-description"
+                    id="weatherDescription"
+                >
+                    Loading weather
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+    </section>
+
+
+    <!-- ===================================================
+         HERO
+         =================================================== -->
+
+    <section class="hero">
+
+
+        <div class="hero-content">
+
+
+            <div class="eyebrow">
+
+                <span class="dot"></span>
+
+                SnowBallz
+
+            </div>
+
+
+            <h1 class="hero-title">
+
+                play
+
+                <span>
+                    anything
+                </span>
+
+            </h1>
+
+
+            <div class="hero-actions">
+
+
+                <a
+                    href="./games.html"
+                    class="action primary"
+                >
+
+                    <span class="material-icons">
+                        sports_esports
+                    </span>
+
+                    Games
+
+                    <span class="material-icons">
+                        arrow_forward
+                    </span>
+
+                </a>
+
+
+                <button
+                    class="action"
+                    id="surpriseButton"
+                    type="button"
+                >
+
+                    <span class="material-icons">
+                        shuffle
+                    </span>
+
+                    Surprise me
+
+                </button>
+
+
+                <a
+                    href="#newest"
+                    class="action"
+                >
+
+                    <span class="material-icons">
+                        new_releases
+                    </span>
+
+                    What's new
+
+                </a>
+
+
+                <a
+                    href="./movies.html"
+                    class="action"
+                >
+
+                    <span class="material-icons">
+                        play_circle
+                    </span>
+
+                    Watch Movies
+
+                </a>
+
+
+                <a
+                    href="https://docs.google.com/forms/d/1FguBBR-5HMAZZWhqXQ1awMED2JZTw0Y2gMurx4FBc8/viewform"
+                    target="_blank"
+                    rel="noopener"
+                    class="action"
+                >
+
+                    <span class="material-icons">
+                        auto_awesome
+                    </span>
+
+                    Suggest anything
+
+                </a>
+
+
+            </div>
+
+
+            <div class="stats">
+
+
+                <div class="stat">
+
+                    <div
+                        class="stat-number"
+                        id="gameCountTop"
+                    >
+                        1958
+                    </div>
+
+                    <div class="stat-label">
+                        games
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-number">
+                        19
+                    </div>
+
+                    <div class="stat-label">
+                        categories
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+    </section>
+
+
+    <!-- ===================================================
+         COMMUNITY
+         =================================================== -->
+
+    <section class="section">
+
+
+        <div class="section-head">
+
+            <div>
+
+                <h2 class="section-title">
+                    Community
+                </h2>
+
+                <p class="section-sub">
+                    Play together, compete, and stay connected.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="community-grid">
+
+
+            <a href="./chat.html" class="feature">
+
+                <div class="feature-icon">
+
+                    <span class="material-icons">
+                        chat
+                    </span>
+
+                </div>
+
+                <div>
+
+                    <div class="feature-name">
+                        Chat
+                    </div>
+
+                    <div class="feature-desc">
+                        Message friends and start groups.
+                    </div>
+
+                </div>
+
+                <span class="new">
+                    new
+                </span>
+
+            </a>
+
+
+            <a href="./friends.html" class="feature">
+
+                <div class="feature-icon">
+
+                    <span class="material-icons">
+                        people
+                    </span>
+
+                </div>
+
+                <div>
+
+                    <div class="feature-name">
+                        Friends
+                    </div>
+
+                    <div class="feature-desc">
+                        See what friends play and join them.
+                    </div>
+
+                </div>
+
+                <span class="new">
+                    new
+                </span>
+
+            </a>
+
+
+            <a href="./leaderboard.html" class="feature">
+
+                <div class="feature-icon">
+
+                    <span class="material-icons">
+                        leaderboard
+                    </span>
+
+                </div>
+
+                <div>
+
+                    <div class="feature-name">
+                        Leaderboard
+                    </div>
+
+                    <div class="feature-desc">
+                        Top players and this week's leaders.
+                    </div>
+
+                </div>
+
+            </a>
+
+
+            <a href="./shop.html" class="feature">
+
+                <div class="feature-icon">
+
+                    <span class="material-icons">
+                        storefront
+                    </span>
+
+                </div>
+
+                <div>
+
+                    <div class="feature-name">
+                        Shop
+                    </div>
+
+                    <div class="feature-desc">
+                        Spend the coins you earn by playing.
+                    </div>
+
+                </div>
+
+            </a>
+
+
+            <a href="./challenge.html" class="feature">
+
+                <div class="feature-icon">
+
+                    <span class="material-icons">
+                        flag
+                    </span>
+
+                </div>
+
+                <div>
+
+                    <div class="feature-name">
+                        Challenge
+                    </div>
+
+                    <div class="feature-desc">
+                        A new PolyTrack track every week.
+                    </div>
+
+                </div>
+
+            </a>
+
+
+            <a href="./polls.html" class="feature">
+
+                <div class="feature-icon">
+
+                    <span class="material-icons">
+                        poll
+                    </span>
+
+                </div>
+
+                <div>
+
+                    <div class="feature-name">
+                        Polls
+                    </div>
+
+                    <div class="feature-desc">
+                        1 poll to answer.
+                    </div>
+
+                </div>
+
+                <span class="new">
+                    new
+                </span>
+
+            </a>
+
+
+        </div>
+
+
+    </section>
+
+
+    <!-- ===================================================
+         QUICK NAVIGATION
+         =================================================== -->
+
+    <section class="section">
+
+
+        <div class="section-head">
+
+            <div>
+
+                <h2 class="section-title">
+                    Explore
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="quick-links">
+
+
+            <a
+                href="./schedule.html"
+                class="quick-link"
+            >
+                Schedule
+            </a>
+
+
+            <a
+                href="./status.html"
+                class="quick-link"
+            >
+                Requests
+            </a>
+
+
+            <a
+                href="./music.html"
+                class="quick-link"
+            >
+                Music
+            </a>
+
+
+            <a
+                href="./unblocker.html"
+                class="quick-link"
+            >
+                Browser
+            </a>
+
+
+            <a
+                href="./settings.html"
+                class="quick-link"
+            >
+                Settings
+            </a>
+
+
+            <a
+                href="./saves.html"
+                class="quick-link"
+            >
+                Saves
+            </a>
+
+
+        </div>
+
+
+    </section>
+
+
+    <!-- ===================================================
+         POLYTRACK
+         =================================================== -->
+
+    <section class="section">
+
+
+        <div class="section-head">
+
+
+            <div>
+
+                <h2 class="section-title">
+                    Track of the week · PolyTrack
+                </h2>
+
+                <p class="section-sub">
+                    Summer 3 · Summer
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="challenge">
+
+
+            <div>
+
+
+                <div class="challenge-label">
+                    Weekly challenge
+                </div>
+
+
+                <div class="challenge-title">
+                    PolyTrack
+                </div>
+
+
+                <div class="challenge-sub">
+                    Race the weekly track and climb the leaderboard.
+                </div>
+
+
+                <div class="race-stats">
+
+
+                    <div class="race-stat">
+
+                        <div class="race-label">
+                            Leader
+                        </div>
+
+                        <div class="race-value">
+                            xyz
+                        </div>
+
+                    </div>
+
+
+                    <div class="race-stat">
+
+                        <div class="race-label">
+                            Time
+                        </div>
+
+                        <div class="race-value">
+                            00:20.624
+                        </div>
+
+                    </div>
+
+
+                    <div class="race-stat">
+
+                        <div class="race-label">
+                            Racers
+                        </div>
+
+                        <div class="race-value">
+                            56
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+            <div class="challenge-side">
+
+
+                <div class="ends">
+
+                    ends in
+
+                    <div
+                        class="timer"
+                        id="challengeTimer"
+                    >
+                        1d 20:31:34
+                    </div>
+
+                </div>
+
+
+                <div class="challenge-actions">
+
+
+                    <a
+                        href="./games/polytrack"
+                        class="small-btn primary"
+                    >
+
+                        Race now
+
+                        <span class="material-icons">
+                            arrow_forward
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="./challenge.html"
+                        class="small-btn"
+                    >
+                        Leaderboard
+                    </a>
+
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+    </section>
+
+
+    <!-- ===================================================
+         NEWEST
+         =================================================== -->
+
+    <section
+        class="section"
+        id="newest"
+    >
+
+
+        <div class="section-head">
+
+
+            <div>
+
+                <h2 class="section-title">
+                    newest
+                </h2>
+
+                <p class="section-sub">
+                    Fresh games and activity.
+                </p>
+
+            </div>
+
+
+            <a
+                href="./games.html"
+                class="section-link"
+            >
+                See full →
+            </a>
+
+
+        </div>
+
+
+        <div class="feed">
+
+
+            <div class="feed-card">
+
+
+                <div class="feed-top">
+
+                    <div class="feed-title">
+                        Friends
+                    </div>
+
+                    <div class="feed-time">
+                        OCT 2
+                    </div>
+
+                </div>
+
+
+                <div class="feed-body">
+
+                    See what friends are playing ·
+
+                    <strong>
+                        ask to join their PolyTrack room
+                    </strong>
+
+                </div>
+
+
+                <a
+                    href="./friends.html"
+                    class="feed-action"
+                >
+                    See full →
+                </a>
+
+
+            </div>
+
+
+            <div class="feed-card">
+
+
+                <div class="feed-top">
+
+                    <div class="feed-title">
+                        New games
+                    </div>
+
+                </div>
+
+
+                <div class="feed-body">
+
+                    Browse the latest games added to SnowBallz.
+
+                </div>
+
+
+                <a
+                    href="./games.html"
+                    class="feed-action"
+                >
+                    Browse games →
+                </a>
+
+
+            </div>
+
+
+        </div>
+
+
+    </section>
+
+
+    <!-- ===================================================
+         GAME LIBRARY
+         =================================================== -->
+
+    <section
+        class="section"
+        id="games-section"
+    >
+
+
+        <div class="section-head">
+
+
+            <div>
+
+                <h2 class="section-title">
+
+                    Games
+
+                    <span
+                        class="section-sub"
+                        id="gameCountLabel"
+                    >
+                        1958 games
+                    </span>
+
+                </h2>
+
+                <p class="section-sub">
+                    Pick something and play.
+                </p>
+
+            </div>
+
+
+            <a
+                href="./games.html"
+                class="section-link"
+            >
+                Open library →
+            </a>
+
+
+        </div>
+
+
+        <div class="games-toolbar">
+
+
+            <div
+                class="chips"
+                id="categoryChips"
+            >
+
+
+                <button
+                    class="chip active"
+                    data-category="all"
+                    type="button"
+                >
+                    All
+                </button>
+
+
+                <button
+                    class="chip"
+                    data-category="action"
+                    type="button"
+                >
+                    Action
+                </button>
+
+
+                <button
+                    class="chip"
+                    data-category="arcade"
+                    type="button"
+                >
+                    Arcade
+                </button>
+
+
+                <button
+                    class="chip"
+                    data-category="racing"
+                    type="button"
+                >
+                    Racing
+                </button>
+
+
+                <button
+                    class="chip"
+                    data-category="sports"
+                    type="button"
+                >
+                    Sports
+                </button>
+
+
+                <button
+                    class="chip"
+                    data-category="puzzle"
+                    type="button"
+                >
+                    Puzzle
+                </button>
+
+
+            </div>
+
+
+            <div class="sort">
+
+                <select id="sortGames">
+
+                    <option value="featured">
+                        Featured
+                    </option>
+
+                    <option value="az">
+                        A → Z
+                    </option>
+
+                    <option value="za">
+                        Z → A
+                    </option>
+
+                </select>
+
+            </div>
+
+
+        </div>
+
+
+        <div id="games">
+
+            <div class="loading">
+                Loading games...
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+    <!-- ===================================================
+         FOOTER
+         =================================================== -->
+
+    <footer class="footer">
+
+        <div>
+
+            ©
+            <span id="year"></span>
+            SnowBallz
+
+        </div>
+
+        <div>
+            Play anything.
+        </div>
+
+    </footer>
+
+
+</main>
+
+
+<!-- =======================================================
+     SURPRISE MODAL
+     ======================================================= -->
+
+<div
+    class="modal"
+    id="surpriseModal"
+>
+
+
+    <div class="modal-card">
+
+
+        <div class="modal-head">
+
+
+            <div class="modal-title">
+                Surprise me
+            </div>
+
+
+            <button
+                class="icon-btn"
+                id="closeSurprise"
+                type="button"
+            >
+
+                <span class="material-icons">
+                    close
+                </span>
+
+            </button>
+
+
+        </div>
+
+
+        <div
+            class="suggestion-list"
+            id="suggestionList"
+        ></div>
+
+
+    </div>
+
+
+</div>
+
+
+<!-- =======================================================
+     JAVASCRIPT
+     ======================================================= -->
+
+<script>
+
+
+/* =========================================================
+   GAME DATA
+   ========================================================= */
+
+let allGames = [];
+
+let selectedCategory = "all";
+
+
+const fallbackGames = [
+
+    {
+        name: "PolyTrack",
+        slug: "polytrack",
+        category: "racing",
+        icon: "./assets/game-icons/polytrack.svg",
+        href: "./games/polytrack"
+    },
+
+    {
+        name: "Retro Bowl",
+        slug: "retro-bowl",
+        category: "sports",
+        icon: "./assets/game-icons/retro-bowl.svg",
+        href: "./games/retro-bowl"
+    },
+
+    {
+        name: "Slope",
+        slug: "slope",
+        category: "arcade",
+        icon: "./assets/game-icons/slope.svg",
+        href: "./games/slope"
+    },
+
+    {
+        name: "Run 3",
+        slug: "run-3",
+        category: "arcade",
+        icon: "./assets/game-icons/run-3.svg",
+        href: "./games/run-3"
+    },
+
+    {
+        name: "1v1.LOL",
+        slug: "1v1-lol",
+        category: "action",
+        icon: "./assets/game-icons/1v1-lol.svg",
+        href: "./games/1v1-lol"
+    },
+
+    {
+        name: "Basket Random",
+        slug: "basket-random",
+        category: "sports",
+        icon: "./assets/game-icons/basket-random.svg",
+        href: "./games/basket-random"
+    },
+
+    {
+        name: "Fireboy and Watergirl",
+        slug: "fireboy-and-watergirl",
+        category: "puzzle",
+        icon: "./assets/game-icons/fireboy-and-watergirl.svg",
+        href: "./games/fireboy-and-watergirl"
+    },
+
+    {
+        name: "Drive Mad",
+        slug: "drive-mad",
+        category: "racing",
+        icon: "./assets/game-icons/drive-mad.svg",
+        href: "./games/drive-mad"
+    },
+
+    {
+        name: "Geometry Dash",
+        slug: "geometry-dash",
+        category: "arcade",
+        icon: "./assets/game-icons/geometry-dash.svg",
+        href: "./games/geometry-dash"
+    },
+
+    {
+        name: "Cookie Clicker",
+        slug: "cookie-clicker",
+        category: "arcade",
+        icon: "./assets/game-icons/cookie-clicker.svg",
+        href: "./games/cookie-clicker"
+    }
+
+];
+
+
+/* =========================================================
+   SCHOOL SCHEDULE
+   ========================================================= */
+
+const SCHOOL_SCHEDULES = {
+
+    regular: [
+
+        {
+            name: "P1",
+            start: "7:45",
+            end: "8:35"
+        },
+
+        {
+            name: "P2",
+            start: "8:40",
+            end: "9:30"
+        },
+
+        {
+            name: "P3",
+            start: "9:35",
+            end: "10:25"
+        },
+
+        {
+            name: "P4",
+            start: "10:30",
+            end: "11:20"
+        },
+
+        {
+            name: "P5",
+            start: "11:25",
+            end: "12:15"
+        },
+
+        {
+            name: "P6",
+            start: "12:20",
+            end: "1:10"
+        },
+
+        {
+            name: "P7",
+            start: "1:15",
+            end: "2:05"
+        },
+
+        {
+            name: "P8",
+            start: "2:10",
+            end: "3:00"
+        }
+
+    ],
+
+
+    soar: [
+
+        {
+            name: "P1",
+            start: "7:45",
+            end: "8:30"
+        },
+
+        {
+            name: "P2",
+            start: "8:35",
+            end: "9:20"
+        },
+
+        {
+            name: "SOAR",
+            start: "9:25",
+            end: "9:55"
+        },
+
+        {
+            name: "P3",
+            start: "10:00",
+            end: "10:45"
+        },
+
+        {
+            name: "P4",
+            start: "10:50",
+            end: "11:35"
+        },
+
+        {
+            name: "P5",
+            start: "11:40",
+            end: "12:25"
+        },
+
+        {
+            name: "P6",
+            start: "12:30",
+            end: "1:15"
+        },
+
+        {
+            name: "P7",
+            start: "1:20",
+            end: "2:05"
+        },
+
+        {
+            name: "P8",
+            start: "2:10",
+            end: "3:00"
+        }
+
+    ],
+
+
+    wednesday: [
+
+        {
+            name: "P1",
+            start: "8:30",
+            end: "9:10"
+        },
+
+        {
+            name: "P2",
+            start: "9:15",
+            end: "9:55"
+        },
+
+        {
+            name: "P3",
+            start: "10:00",
+            end: "10:40"
+        },
+
+        {
+            name: "P4",
+            start: "10:45",
+            end: "11:30"
+        },
+
+        {
+            name: "P5",
+            start: "11:35",
+            end: "12:20"
+        },
+
+        {
+            name: "P6",
+            start: "12:25",
+            end: "1:10"
+        },
+
+        {
+            name: "P7",
+            start: "1:15",
+            end: "2:00"
+        },
+
+        {
+            name: "P8",
+            start: "2:05",
+            end: "3:00"
+        }
+
+    ]
+
+};
+
+
+/* =========================================================
+   SCHEDULE HELPERS
+   ========================================================= */
+
+function timeToMinutes(time) {
+
+    const parts =
+        time
+            .split(":")
+            .map(Number);
+
+    let hour = parts[0];
+    const minute = parts[1];
+
+    /*
+       All schedule times are school-day times.
+       1:00–3:00 therefore means PM.
+    */
+
+    if (hour < 7) {
+        hour += 12;
+    }
+
+    if (hour >= 1 && hour <= 3) {
+        hour += 12;
+    }
+
+    return (
+        hour * 60 +
+        minute
+    );
+
+}
+
+
+function getScheduleForToday() {
+
+    const day =
+        new Date().getDay();
+
+    /*
+        Sunday = 0
+        Monday = 1
+        Tuesday = 2
+        Wednesday = 3
+        Thursday = 4
+        Friday = 5
+        Saturday = 6
+    */
+
+    if (day === 3) {
+
+        return SCHOOL_SCHEDULES.wednesday;
+
+    }
+
+    if (
+        day === 2 ||
+        day === 4
+    ) {
+
+        return SCHOOL_SCHEDULES.soar;
+
+    }
+
+    if (
+        day === 1 ||
+        day === 5
+    ) {
+
+        return SCHOOL_SCHEDULES.regular;
+
+    }
+
+    return [];
+
+}
+
+
+function getScheduleType() {
+
+    const day =
+        new Date().getDay();
+
+    if (day === 3) {
+        return "wednesday";
+    }
+
+    if (
+        day === 2 ||
+        day === 4
+    ) {
+        return "soar";
+    }
+
+    if (
+        day === 1 ||
+        day === 5
+    ) {
+        return "regular";
+    }
+
+    return "weekend";
+
+}
+
+
+function formatCountdown(totalSeconds) {
+
+    totalSeconds =
+        Math.max(
+            0,
+            Math.floor(totalSeconds)
+        );
+
+    const hours =
+        Math.floor(
+            totalSeconds / 3600
+        );
+
+    const minutes =
+        Math.floor(
+            (
+                totalSeconds % 3600
+            ) / 60
+        );
+
+    const seconds =
+        totalSeconds % 60;
+
+
+    if (hours > 0) {
+
+        return (
+
+            String(hours)
+                .padStart(2,"0")
+
+            +
+
+            ":" +
+
+            String(minutes)
+                .padStart(2,"0")
+
+            +
+
+            ":" +
+
+            String(seconds)
+                .padStart(2,"0")
+
+        );
+
+    }
+
+
+    return (
+
+        String(minutes)
+            .padStart(2,"0")
+
+        +
+
+        ":" +
+
+        String(seconds)
+            .padStart(2,"0")
+
+    );
+
+}
+
+
+/* =========================================================
+   LIVE SCHOOL SCHEDULE
+   ========================================================= */
+
+function updateSchoolSchedule() {
+
+    const periodElement =
+        document.getElementById(
+            "schedulePeriod"
+        );
+
+    const countdownElement =
+        document.getElementById(
+            "scheduleCountdown"
+        );
+
+
+    const schedule =
+        getScheduleForToday();
+
+
+    if (!schedule.length) {
+
+        periodElement.textContent =
+            "No school";
+
+        countdownElement.textContent =
+            "Enjoy your day";
+
+        return;
+
+    }
+
+
+    const now =
+        new Date();
+
+
+    const currentMinutes =
+
+        now.getHours() * 60 +
+
+        now.getMinutes() +
+
+        now.getSeconds() / 60;
+
+
+    const currentSeconds =
+
+        now.getHours() * 3600 +
+
+        now.getMinutes() * 60 +
+
+        now.getSeconds();
+
+
+    /*
+       Check current class.
+    */
+
+    for (
+        const period of schedule
+    ) {
+
+        const start =
+            timeToMinutes(
+                period.start
+            );
+
+        const end =
+            timeToMinutes(
+                period.end
+            );
+
+
+        if (
+            currentMinutes >= start &&
+            currentMinutes < end
+        ) {
+
+            const endSeconds =
+                end * 60;
+
+            const remaining =
+                endSeconds -
+                currentSeconds;
+
+
+            periodElement.textContent =
+                period.name;
+
+
+            countdownElement.textContent =
+
+                "ends in " +
+
+                formatCountdown(
+                    remaining
+                );
+
+
+            return;
+
+        }
+
+    }
+
+
+    /*
+       Before school.
+    */
+
+    const first =
+        schedule[0];
+
+
+    const firstStart =
+        timeToMinutes(
+            first.start
+        );
+
+
+    if (
+        currentMinutes <
+        firstStart
+    ) {
+
+        const secondsUntil =
+            (
+                firstStart * 60
+            ) -
+            currentSeconds;
+
+
+        periodElement.textContent =
+            "Before school";
+
+
+        countdownElement.textContent =
+
+            first.name +
+
+            " starts in " +
+
+            formatCountdown(
+                secondsUntil
+            );
+
+
+        return;
+
+    }
+
+
+    /*
+       Between periods.
+    */
+
+    for (
+        let i = 0;
+        i < schedule.length - 1;
+        i++
+    ) {
+
+        const current =
+            schedule[i];
+
+        const next =
+            schedule[i + 1];
+
+
+        const currentEnd =
+            timeToMinutes(
+                current.end
+            );
+
+        const nextStart =
+            timeToMinutes(
+                next.start
+            );
+
+
+        if (
+            currentMinutes >= currentEnd &&
+            currentMinutes < nextStart
+        ) {
+
+            const secondsUntil =
+                (
+                    nextStart * 60
+                ) -
+                currentSeconds;
+
+
+            periodElement.textContent =
+                "Passing period";
+
+
+            countdownElement.textContent =
+
+                next.name +
+
+                " in " +
+
+                formatCountdown(
+                    secondsUntil
+                );
+
+
+            return;
+
+        }
+
+    }
+
+
+    /*
+       After school.
+    */
+
+    const last =
+        schedule[
+            schedule.length - 1
         ];
 
-        let currentCategory = "all";
-        let currentSearch = "";
-        let currentSort = "popular";
 
-        const gamesGrid = document.getElementById("games");
-        const searchInput = document.getElementById("searchInput");
-        const sortSelect = document.getElementById("sortSelect");
-        const toastEl = document.getElementById("toast");
+    const lastEnd =
+        timeToMinutes(
+            last.end
+        );
 
-        function showToast(message) {
-            toastEl.textContent = message;
-            toastEl.classList.add("show");
-            clearTimeout(window.toastTimeout);
-            window.toastTimeout = setTimeout(() => toastEl.classList.remove("show"), 2600);
-        }
 
-        function renderGames() {
-            let filtered = gamesData.filter(game => {
-                const matchesCat = currentCategory === "all" || game.category === currentCategory;
-                const matchesSearch = game.name.toLowerCase().includes(currentSearch.toLowerCase());
-                return matchesCat && matchesSearch;
-            });
+    if (
+        currentMinutes >= lastEnd
+    ) {
 
-            if (currentSort === "az") {
-                filtered.sort((a, b) => a.name.localeCompare(b.name));
-            } else if (currentSort === "za") {
-                filtered.sort((a, b) => b.name.localeCompare(a.name));
-            } else {
-                filtered.sort((a, b) => b.plays - a.plays);
-            }
+        periodElement.textContent =
+            "After school";
 
-            if (filtered.length === 0) {
-                gamesGrid.innerHTML = `<div class="loading">No holiday games found matching your filter.</div>`;
+        countdownElement.textContent =
+            "ends Tomorrow";
+
+        return;
+
+    }
+
+}
+
+
+/* =========================================================
+   WEATHER
+   ========================================================= */
+
+/*
+   Fallback is approximate Hickory Hills, Illinois.
+   If the visitor grants browser location permission,
+   their coordinates are used instead.
+*/
+
+const WEATHER_FALLBACK = {
+
+    latitude:
+        41.7256,
+
+    longitude:
+        -87.8251
+
+};
+
+
+function weatherDescription(code) {
+
+    if (code === 0)
+        return "Clear";
+
+    if (
+        code === 1 ||
+        code === 2
+    )
+        return "Partly cloudy";
+
+    if (code === 3)
+        return "Cloudy";
+
+    if (
+        code === 45 ||
+        code === 48
+    )
+        return "Foggy";
+
+    if (
+        code >= 51 &&
+        code <= 57
+    )
+        return "Drizzle";
+
+    if (
+        code >= 61 &&
+        code <= 67
+    )
+        return "Rain";
+
+    if (
+        code >= 71 &&
+        code <= 77
+    )
+        return "Snow";
+
+    if (
+        code >= 80 &&
+        code <= 82
+    )
+        return "Showers";
+
+    if (
+        code === 85 ||
+        code === 86
+    )
+        return "Snow showers";
+
+    if (
+        code >= 95
+    )
+        return "Thunderstorm";
+
+    return "Weather";
+
+}
+
+
+function weatherIcon(code) {
+
+    if (code === 0)
+        return "wb_sunny";
+
+    if (
+        code === 1 ||
+        code === 2
+    )
+        return "partly_cloudy_day";
+
+    if (code === 3)
+        return "cloud";
+
+    if (
+        code === 45 ||
+        code === 48
+    )
+        return "foggy";
+
+    if (
+        code >= 51 &&
+        code <= 67
+    )
+        return "rainy";
+
+    if (
+        code >= 71 &&
+        code <= 86
+    )
+        return "ac_unit";
+
+    if (code >= 95)
+        return "thunderstorm";
+
+    return "cloud";
+
+}
+
+
+function getBrowserLocation() {
+
+    return new Promise(
+        (resolve,reject) => {
+
+            if (
+                !navigator.geolocation
+            ) {
+
+                reject(
+                    new Error(
+                        "Geolocation unavailable"
+                    )
+                );
+
                 return;
+
             }
 
-            gamesGrid.innerHTML = filtered.map((game, index) => {
-                const count = liveGameCounts[game.name] || 0;
-                return `
-                <article class="game-card" style="--i: ${index}">
-                    <a href="#play-${game.id}" onclick="event.preventDefault(); launchGame('${game.name}')">
-                        <div class="live-badge">
-                            <span class="pulse-dot"></span>
-                            <span>${count} playing</span>
-                        </div>
-                        <div class="game-thumb">
-                            <div class="card-glare"></div>
-                            <span class="material-icons">${game.icon}</span>
-                        </div>
-                        <h3 class="game-name">${game.name}</h3>
-                    </a>
-                </article>
-            `}).join("");
 
-            attachCardTilt();
-        }
+            navigator
+                .geolocation
+                .getCurrentPosition(
 
-        function launchGame(name) {
-            activeGame = name;
-            updatePresenceState(name);
-            showToast(`Launching ${name} in Holiday Mode...`);
-        }
+                    position => {
 
-        // Realtime Presence for Site + Per-Game Player Counts
-        const visitorId = crypto.randomUUID();
-        function initPresence() {
-            if (!sb) return;
-            presenceChannel = sb.channel("snowballz-live-room", {
-                config: { presence: { key: visitorId } }
-            });
+                        resolve({
 
-            presenceChannel
-                .on("presence", { event: "sync" }, () => {
-                    const state = presenceChannel.presenceState();
-                    let totalOnline = 0;
-                    const counts = {};
+                            latitude:
+                                position
+                                    .coords
+                                    .latitude,
 
-                    Object.values(state).forEach(presences => {
-                        presences.forEach(p => {
-                            totalOnline++;
-                            if (p.current_game) {
-                                counts[p.current_game] = (counts[p.current_game] || 0) + 1;
-                            }
+                            longitude:
+                                position
+                                    .coords
+                                    .longitude
+
                         });
-                    });
 
-                    document.getElementById("liveOnlineCount").textContent = Math.max(1, totalOnline);
-                    liveGameCounts = counts;
-                    renderGames();
-                })
-                .subscribe(async (status) => {
-                    if (status === "SUBSCRIBED") {
-                        await presenceChannel.track({
-                            current_game: activeGame,
-                            online_at: new Date().toISOString()
-                        });
+                    },
+
+                    error => {
+
+                        reject(error);
+
+                    },
+
+                    {
+
+                        enableHighAccuracy:
+                            false,
+
+                        timeout:
+                            3500,
+
+                        maximumAge:
+                            600000
+
                     }
-                });
+
+                );
+
+        }
+    );
+
+}
+
+
+async function loadWeather() {
+
+    const tempElement =
+        document.getElementById(
+            "weatherTemp"
+        );
+
+    const descriptionElement =
+        document.getElementById(
+            "weatherDescription"
+        );
+
+    const iconElement =
+        document.getElementById(
+            "weatherIcon"
+        );
+
+
+    let location =
+        WEATHER_FALLBACK;
+
+
+    try {
+
+        location =
+            await getBrowserLocation();
+
+    } catch (_) {
+
+        /*
+           Fallback remains in use.
+        */
+
+    }
+
+
+    try {
+
+        const url =
+
+            "https://api.open-meteo.com/v1/forecast" +
+
+            "?latitude=" +
+            encodeURIComponent(
+                location.latitude
+            ) +
+
+            "&longitude=" +
+            encodeURIComponent(
+                location.longitude
+            ) +
+
+            "&current=" +
+            "temperature_2m," +
+            "weather_code," +
+            "is_day" +
+
+            "&temperature_unit=fahrenheit" +
+
+            "&timezone=auto";
+
+
+        const response =
+            await fetch(url);
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Weather request failed"
+            );
+
         }
 
-        async function updatePresenceState(gameName) {
-            if (!presenceChannel) return;
-            await presenceChannel.track({
-                current_game: gameName,
-                online_at: new Date().toISOString()
-            });
+
+        const data =
+            await response.json();
+
+
+        const current =
+            data.current;
+
+
+        const temperature =
+            Math.round(
+                current.temperature_2m
+            );
+
+
+        tempElement.textContent =
+            `${temperature}°`;
+
+
+        descriptionElement.textContent =
+            weatherDescription(
+                current.weather_code
+            );
+
+
+        iconElement.textContent =
+            weatherIcon(
+                current.weather_code
+            );
+
+
+    } catch (error) {
+
+        console.warn(
+            "Weather unavailable:",
+            error
+        );
+
+
+        tempElement.textContent =
+            "--°";
+
+
+        descriptionElement.textContent =
+            "Weather unavailable";
+
+
+        iconElement.textContent =
+            "cloud_off";
+
+    }
+
+}
+
+
+/* =========================================================
+   NORMALIZE GAMES
+   ========================================================= */
+
+function normalizeGame(game) {
+
+
+    const name =
+
+        game.name ||
+
+        game.title ||
+
+        game.gameName ||
+
+        "Untitled Game";
+
+
+    const slug =
+
+        game.slug ||
+
+        game.id ||
+
+        name
+
+            .toLowerCase()
+
+            .replace(/[^a-z0-9]+/g, "-")
+
+            .replace(/^-|-$/g, "");
+
+
+    const category =
+
+        String(
+            game.category ||
+            game.genre ||
+            "arcade"
+        ).toLowerCase();
+
+
+    const icon =
+
+        game.icon ||
+
+        game.image ||
+
+        game.thumbnail ||
+
+        `./assets/game-icons/${slug}.svg`;
+
+
+    const href =
+
+        game.url ||
+
+        game.href ||
+
+        game.link ||
+
+        `./games/${slug}`;
+
+
+    return {
+
+        ...game,
+
+        name,
+
+        slug,
+
+        category,
+
+        icon,
+
+        href
+
+    };
+
+}
+
+
+/* =========================================================
+   LOAD GAMES
+   ========================================================= */
+
+async function loadGames() {
+
+
+    const gamesElement =
+        document.getElementById("games");
+
+
+    try {
+
+
+        const sources = [
+
+            "./games.json",
+
+            "./data/games.json"
+
+        ];
+
+
+        let data = null;
+
+
+        for (
+            const source of sources
+        ) {
+
+
+            try {
+
+
+                const response =
+                    await fetch(
+                        source +
+                        "?t=" +
+                        Date.now()
+                    );
+
+
+                if (!response.ok) {
+                    continue;
+                }
+
+
+                data =
+                    await response.json();
+
+
+                break;
+
+
+            } catch (_) {}
+
         }
 
-        if (sb) {
-            initPresence();
+
+        if (Array.isArray(data)) {
+
+
+            allGames =
+                data.map(
+                    normalizeGame
+                );
+
+
+        } else if (
+            data &&
+            Array.isArray(data.games)
+        ) {
+
+
+            allGames =
+                data.games.map(
+                    normalizeGame
+                );
+
         }
 
-        // 3D Card Tilt & Dynamic Glare Physics
-        function attachCardTilt() {
-            document.querySelectorAll(".game-card").forEach(card => {
-                const glare = card.querySelector(".card-glare");
 
-                card.addEventListener("mousemove", (e) => {
-                    const rect = card.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    const centerX = rect.width / 2;
-                    const centerY = rect.height / 2;
-                    const rotateX = ((y - centerY) / centerY) * -12;
-                    const rotateY = ((x - centerX) / centerX) * 12;
+        if (!allGames.length) {
 
-                    card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px) scale(1.03)`;
-                    if (glare) {
-                        const px = (x / rect.width) * 100;
-                        const py = (y / rect.height) * 100;
-                        glare.style.background = `radial-gradient(circle at ${px}% ${py}%, rgba(255, 255, 255, 0.35), transparent 65%)`;
+
+            allGames =
+                fallbackGames.map(
+                    normalizeGame
+                );
+
+        }
+
+
+    } catch (error) {
+
+
+        console.warn(
+            "Game library fallback:",
+            error
+        );
+
+
+        allGames =
+            fallbackGames.map(
+                normalizeGame
+            );
+
+    }
+
+
+    updateGameCounts();
+
+    renderGames();
+
+}
+
+
+/* =========================================================
+   GAME COUNTS
+   ========================================================= */
+
+function updateGameCounts() {
+
+
+    const total =
+        allGames.length;
+
+
+    const displayTotal =
+        total > 100
+            ? "1958"
+            : total;
+
+
+    document
+        .getElementById("gameCountTop")
+        .textContent =
+        displayTotal;
+
+
+    document
+        .getElementById("gameCountLabel")
+        .textContent =
+        `${displayTotal} games`;
+
+}
+
+
+/* =========================================================
+   VISIBLE GAMES
+   ========================================================= */
+
+function getVisibleGames() {
+
+
+    let games =
+        [...allGames];
+
+
+    if (
+        selectedCategory !==
+        "all"
+    ) {
+
+
+        games =
+            games.filter(
+                game =>
+                    game.category
+                        .includes(
+                            selectedCategory
+                        )
+            );
+
+    }
+
+
+    const search =
+
+        document
+            .getElementById(
+                "globalSearch"
+            )
+            .value
+            .trim()
+            .toLowerCase();
+
+
+    if (search) {
+
+
+        games =
+            games.filter(
+                game =>
+
+                    game.name
+                        .toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    game.category
+                        .toLowerCase()
+                        .includes(search)
+            );
+
+    }
+
+
+    const sort =
+
+        document
+            .getElementById(
+                "sortGames"
+            )
+            .value;
+
+
+    if (sort === "az") {
+
+
+        games.sort(
+            (a,b) =>
+                a.name.localeCompare(
+                    b.name
+                )
+        );
+
+    }
+
+
+    if (sort === "za") {
+
+
+        games.sort(
+            (a,b) =>
+                b.name.localeCompare(
+                    a.name
+                )
+        );
+
+    }
+
+
+    return games.slice(0,20);
+
+}
+
+
+/* =========================================================
+   RENDER GAMES
+   ========================================================= */
+
+function renderGames() {
+
+
+    const gamesElement =
+        document.getElementById(
+            "games"
+        );
+
+
+    const games =
+        getVisibleGames();
+
+
+    gamesElement.innerHTML =
+        "";
+
+
+    if (!games.length) {
+
+
+        gamesElement.innerHTML =
+
+            `
+            <div class="loading">
+                No games found.
+            </div>
+            `;
+
+
+        return;
+
+    }
+
+
+    games.forEach(
+        game => {
+
+
+            const card =
+                document.createElement(
+                    "article"
+                );
+
+
+            card.className =
+                "game-card";
+
+
+            const link =
+                document.createElement(
+                    "a"
+                );
+
+
+            link.href =
+                game.href;
+
+
+            const thumb =
+                document.createElement(
+                    "div"
+                );
+
+
+            thumb.className =
+                "game-thumb";
+
+
+            const image =
+                document.createElement(
+                    "img"
+                );
+
+
+            image.src =
+                game.icon;
+
+
+            image.alt =
+                game.name;
+
+
+            image.loading =
+                "lazy";
+
+
+            image.onerror =
+                () => {
+
+
+                    image.style.display =
+                        "none";
+
+
+                    if (
+                        !thumb.querySelector(
+                            ".fallback-icon"
+                        )
+                    ) {
+
+
+                        const fallback =
+                            document.createElement(
+                                "span"
+                            );
+
+
+                        fallback.className =
+                            "material-icons fallback-icon";
+
+
+                        fallback.textContent =
+                            "sports_esports";
+
+
+                        thumb.appendChild(
+                            fallback
+                        );
+
                     }
-                });
 
-                card.addEventListener("mouseleave", () => {
-                    card.style.transform = "rotateX(0deg) rotateY(0deg) translateY(0) scale(1)";
-                });
-            });
+                };
+
+
+            thumb.appendChild(
+                image
+            );
+
+
+            const name =
+                document.createElement(
+                    "span"
+                );
+
+
+            name.className =
+                "game-name";
+
+
+            name.textContent =
+                game.name;
+
+
+            const meta =
+                document.createElement(
+                    "div"
+                );
+
+
+            meta.className =
+                "game-meta";
+
+
+            meta.textContent =
+
+                game.category
+                    .charAt(0)
+                    .toUpperCase()
+
+                +
+
+                game.category
+                    .slice(1);
+
+
+            link.appendChild(
+                thumb
+            );
+
+
+            link.appendChild(
+                name
+            );
+
+
+            link.appendChild(
+                meta
+            );
+
+
+            card.appendChild(
+                link
+            );
+
+
+            gamesElement.appendChild(
+                card
+            );
+
+
         }
+    );
 
-        // Magnetic Buttons
-        document.querySelectorAll(".magnetic").forEach(btn => {
-            btn.addEventListener("mousemove", (e) => {
-                const rect = btn.getBoundingClientRect();
-                const x = (e.clientX - rect.left - rect.width / 2) * 0.28;
-                const y = (e.clientY - rect.top - rect.height / 2) * 0.28;
-                btn.style.transform = `translate(${x}px, ${y}px)`;
-            });
+}
 
-            btn.addEventListener("mouseleave", () => {
-                btn.style.transform = "translate(0px, 0px)";
-            });
-        });
 
-        // Hero Scramble Text Reveal
-        function scrambleHeroTitle() {
-            const target = document.getElementById("heroScramble");
-            if (!target) return;
-            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789❄️*#";
-            const originalPrimary = "Cozy arcade games.";
-            let frame = 0;
+/* =========================================================
+   RANDOM GAME
+   ========================================================= */
 
-            const interval = setInterval(() => {
-                const scrambled = originalPrimary
-                    .split("")
-                    .map((char, idx) => {
-                        if (char === " ") return " ";
-                        if (idx < frame / 2) return originalPrimary[idx];
-                        return chars[Math.floor(Math.random() * chars.length)];
-                    })
-                    .join("");
+function randomGame() {
 
-                target.childNodes[0].textContent = scrambled + "\n                    ";
-                frame++;
-                if (frame > originalPrimary.length * 2) {
-                    target.childNodes[0].textContent = originalPrimary + "\n                    ";
-                    clearInterval(interval);
-                }
-            }, 35);
-        }
 
-        // Stat Counter Roll-up
-        function animateCounters() {
-            document.querySelectorAll(".stat-number[data-target]").forEach(el => {
-                const target = parseInt(el.dataset.target, 10);
-                const suffix = el.dataset.suffix || "";
-                let current = 0;
-                const step = Math.max(1, Math.ceil(target / 24));
-                const timer = setInterval(() => {
-                    current += step;
-                    if (current >= target) {
-                        el.textContent = target + suffix;
-                        clearInterval(timer);
-                    } else {
-                        el.textContent = current + suffix;
-                    }
-                }, 30);
-            });
-        }
+    if (!allGames.length) {
+        return;
+    }
 
-        // Scroll Reveal Observer
-        const revealObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add("visible");
-                }
-            });
-        }, { threshold: 0.1 });
 
-        document.querySelectorAll(".reveal").forEach(el => revealObserver.observe(el));
+    const game =
 
-        // Interactive Snowflake & Constellation Particle Canvas
-        const canvas = document.getElementById("particleCanvas");
-        const ctx = canvas.getContext("2d");
-        let particles = [];
-        let mouse = { x: null, y: null };
+        allGames[
+            Math.floor(
+                Math.random() *
+                allGames.length
+            )
+        ];
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            initParticles();
-        }
 
-        function initParticles() {
-            const count = Math.min(65, Math.floor((canvas.width * canvas.height) / 20000));
-            particles = Array.from({ length: count }, () => ({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                vx: (Math.random() - 0.5) * 0.4,
-                vy: Math.random() * 0.8 + 0.3,
-                size: Math.random() * 2.2 + 1
-            }));
-        }
+    if (
+        game &&
+        game.href
+    ) {
 
-        window.addEventListener("mousemove", (e) => {
-            mouse.x = e.clientX;
-            mouse.y = e.clientY;
-        });
 
-        window.addEventListener("mouseout", () => {
-            mouse.x = null;
-            mouse.y = null;
-        });
+        window.location.href =
+            game.href;
 
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
 
-            for (let i = 0; i < particles.length; i++) {
-                const p = particles[i];
-                p.x += p.vx;
-                p.y += p.vy;
+}
 
-                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-                if (p.y > canvas.height) {
-                    p.y = -10;
-                    p.x = Math.random() * canvas.width;
-                }
 
-                ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fill();
+/* =========================================================
+   SURPRISE MODAL
+   ========================================================= */
 
-                if (mouse.x !== null && mouse.y !== null) {
-                    const mdx = p.x - mouse.x;
-                    const mdy = p.y - mouse.y;
-                    const mdist = Math.hypot(mdx, mdy);
-                    if (mdist < 130) {
-                        ctx.strokeStyle = `rgba(255, 255, 255, ${(1 - mdist / 130) * 0.35})`;
-                        ctx.lineWidth = 0.8;
-                        ctx.beginPath();
-                        ctx.moveTo(p.x, p.y);
-                        ctx.lineTo(mouse.x, mouse.y);
-                        ctx.stroke();
-                    }
-                }
-            }
+function openSurprise() {
 
-            requestAnimationFrame(animateParticles);
-        }
 
-        window.addEventListener("resize", resizeCanvas);
-        resizeCanvas();
-        animateParticles();
+    const modal =
+        document.getElementById(
+            "surpriseModal"
+        );
 
-        // Category Chips
-        document.getElementById("categoryChips").addEventListener("click", (e) => {
-            const chip = e.target.closest(".chip");
-            if (!chip) return;
-            document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
-            chip.classList.add("active");
-            currentCategory = chip.dataset.category;
-            renderGames();
-        });
 
-        // Quick Filter Jump Buttons
-        document.querySelectorAll(".filter-jump").forEach(btn => {
-            btn.addEventListener("click", () => {
-                currentCategory = btn.dataset.cat;
-                document.querySelectorAll(".chip").forEach(c => {
-                    c.classList.toggle("active", c.dataset.category === currentCategory);
-                });
-                renderGames();
-                document.getElementById("library").scrollIntoView({ behavior: "smooth" });
-            });
-        });
+    const list =
+        document.getElementById(
+            "suggestionList"
+        );
 
-        // Search & Shortcut '/'
-        searchInput.addEventListener("input", (e) => {
-            currentSearch = e.target.value;
-            renderGames();
-        });
 
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "/" && document.activeElement !== searchInput) {
-                e.preventDefault();
-                searchInput.focus();
-            }
-        });
+    list.innerHTML =
+        "";
 
-        // Sort
-        sortSelect.addEventListener("change", (e) => {
-            currentSort = e.target.value;
-            renderGames();
-        });
 
-        // Mobile Sidebar
-        const sidenav = document.getElementById("sidenav");
-        document.getElementById("openMenuBtn").addEventListener("click", () => sidenav.classList.add("open"));
-        document.getElementById("closeMenuBtn").addEventListener("click", () => sidenav.classList.remove("open"));
-        document.getElementById("closeMenuBackdrop").addEventListener("click", () => sidenav.classList.remove("open"));
+    const shuffled =
 
-        // Surprise Modal
-        const surpriseModal = document.getElementById("surpriseModal");
-        const suggestionList = document.getElementById("suggestionList");
+        [...allGames]
 
-        function openSurpriseModal() {
-            const shuffled = [...gamesData].sort(() => 0.5 - Math.random()).slice(0, 3);
-            suggestionList.innerHTML = shuffled.map(g => `
-                <div class="suggestion">
-                    <div>
-                        <div class="suggestion-name">${g.name}</div>
-                        <div class="suggestion-meta">${g.category.toUpperCase()} · ${g.plays} plays</div>
+            .sort(
+                () =>
+                    Math.random() -
+                    .5
+            )
+
+            .slice(0,5);
+
+
+    if (!shuffled.length) {
+
+
+        list.innerHTML =
+
+            `
+            <div class="empty">
+                No games available yet.
+            </div>
+            `;
+
+
+    }
+
+
+    shuffled.forEach(
+        game => {
+
+
+            const row =
+                document.createElement(
+                    "a"
+                );
+
+
+            row.className =
+                "suggestion";
+
+
+            row.href =
+                game.href;
+
+
+            row.innerHTML =
+
+                `
+                <div>
+
+                    <div class="suggestion-name">
+                        ${escapeHtml(game.name)}
                     </div>
-                    <button class="small-btn primary" onclick="launchGame('${g.name}')">Play</button>
+
+                    <div class="suggestion-meta">
+                        ${escapeHtml(game.category)}
+                    </div>
+
                 </div>
-            `).join("");
-            surpriseModal.classList.add("show");
-            document.body.classList.add("modal-open");
+
+                <span class="material-icons">
+                    arrow_forward
+                </span>
+                `;
+
+
+            list.appendChild(
+                row
+            );
+
+        }
+    );
+
+
+    modal.classList.add(
+        "show"
+    );
+
+
+    document.body.classList.add(
+        "modal-open"
+    );
+
+}
+
+
+/* =========================================================
+   CLOSE SURPRISE
+   ========================================================= */
+
+function closeSurprise() {
+
+
+    document
+        .getElementById(
+            "surpriseModal"
+        )
+        .classList.remove(
+            "show"
+        );
+
+
+    document.body.classList.remove(
+        "modal-open"
+    );
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+   ========================================================= */
+
+function escapeHtml(value) {
+
+
+    return String(value)
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* =========================================================
+   DATE
+   ========================================================= */
+
+function updateDate() {
+
+
+    const now =
+        new Date();
+
+
+    const weekday =
+
+        now
+            .toLocaleDateString(
+                "en-US",
+                {
+                    weekday:"short"
+                }
+            )
+            .toUpperCase();
+
+
+    const month =
+
+        now
+            .toLocaleDateString(
+                "en-US",
+                {
+                    month:"short"
+                }
+            )
+            .toUpperCase();
+
+
+    const day =
+        now.getDate();
+
+
+    document
+        .getElementById(
+            "dateText"
+        )
+        .textContent =
+
+        `${weekday} · ${month} ${day}`;
+
+}
+
+
+/* =========================================================
+   POLYTRACK TIMER
+   ========================================================= */
+
+let challengeEnd =
+
+    Date.now() +
+
+    (
+        (
+            (
+                1 * 24
+            )
+
+            +
+
+            20
+        )
+
+        *
+
+        60
+
+        +
+
+        31
+    )
+
+    *
+
+    60
+
+    +
+
+    34
+
+    *
+
+    1000;
+
+
+function updateChallengeTimer() {
+
+
+    const element =
+        document.getElementById(
+            "challengeTimer"
+        );
+
+
+    let remaining =
+
+        Math.max(
+            0,
+            challengeEnd -
+            Date.now()
+        );
+
+
+    const totalSeconds =
+
+        Math.floor(
+            remaining /
+            1000
+        );
+
+
+    const days =
+
+        Math.floor(
+            totalSeconds /
+            86400
+        );
+
+
+    const hours =
+
+        Math.floor(
+            (
+                totalSeconds %
+                86400
+            ) /
+            3600
+        );
+
+
+    const minutes =
+
+        Math.floor(
+            (
+                totalSeconds %
+                3600
+            ) /
+            60
+        );
+
+
+    const seconds =
+
+        totalSeconds %
+        60;
+
+
+    element.textContent =
+
+        `${days}d ` +
+
+        `${String(hours).padStart(2,"0")}:` +
+
+        `${String(minutes).padStart(2,"0")}:` +
+
+        `${String(seconds).padStart(2,"0")}`;
+
+}
+
+
+/* =========================================================
+   SEARCH
+   ========================================================= */
+
+document
+    .getElementById(
+        "globalSearch"
+    )
+    .addEventListener(
+        "input",
+        renderGames
+    );
+
+
+document
+    .getElementById(
+        "sortGames"
+    )
+    .addEventListener(
+        "change",
+        renderGames
+    );
+
+
+/* =========================================================
+   CATEGORY FILTERS
+   ========================================================= */
+
+document
+    .querySelectorAll(
+        ".chip"
+    )
+    .forEach(
+        chip => {
+
+
+            chip.addEventListener(
+                "click",
+                () => {
+
+
+                    document
+                        .querySelectorAll(
+                            ".chip"
+                        )
+                        .forEach(
+                            item =>
+                                item.classList.remove(
+                                    "active"
+                                )
+                        );
+
+
+                    chip.classList.add(
+                        "active"
+                    );
+
+
+                    selectedCategory =
+                        chip.dataset.category;
+
+
+                    renderGames();
+
+                }
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   RANDOM BUTTONS
+   ========================================================= */
+
+document
+    .getElementById(
+        "randomTop"
+    )
+    .addEventListener(
+        "click",
+        randomGame
+    );
+
+
+document
+    .getElementById(
+        "surpriseButton"
+    )
+    .addEventListener(
+        "click",
+        openSurprise
+    );
+
+
+/* =========================================================
+   SURPRISE CLOSE
+   ========================================================= */
+
+document
+    .getElementById(
+        "closeSurprise"
+    )
+    .addEventListener(
+        "click",
+        closeSurprise
+    );
+
+
+document
+    .getElementById(
+        "surpriseModal"
+    )
+    .addEventListener(
+        "click",
+        event => {
+
+
+            if (
+                event.target.id ===
+                "surpriseModal"
+            ) {
+
+
+                closeSurprise();
+
+            }
+
+        }
+    );
+
+
+/* =========================================================
+   MOBILE MENU
+   ========================================================= */
+
+const sideNav =
+    document.getElementById(
+        "sideNav"
+    );
+
+
+document
+    .getElementById(
+        "menuButton"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+
+            sideNav.classList.add(
+                "open"
+            );
+
+
+            document.body.classList.add(
+                "modal-open"
+            );
+
+        }
+    );
+
+
+function closeMenu() {
+
+
+    sideNav.classList.remove(
+        "open"
+    );
+
+
+    document.body.classList.remove(
+        "modal-open"
+    );
+
+}
+
+
+document
+    .getElementById(
+        "closeMenu"
+    )
+    .addEventListener(
+        "click",
+        closeMenu
+    );
+
+
+document
+    .getElementById(
+        "sideBackdrop"
+    )
+    .addEventListener(
+        "click",
+        closeMenu
+    );
+
+
+/* =========================================================
+   KEYBOARD SHORTCUTS
+   ========================================================= */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+
+        if (
+
+            (
+                event.metaKey ||
+                event.ctrlKey
+            )
+
+            &&
+
+            event.key.toLowerCase()
+            ===
+            "k"
+
+        ) {
+
+
+            event.preventDefault();
+
+
+            const search =
+                document.getElementById(
+                    "globalSearch"
+                );
+
+
+            search.focus();
+
+            search.select();
+
         }
 
-        function closeSurpriseModal() {
-            surpriseModal.classList.remove("show");
-            document.body.classList.remove("modal-open");
+
+        if (
+            event.key ===
+            "Escape"
+        ) {
+
+
+            closeSurprise();
+
+            closeMenu();
+
         }
 
-        document.getElementById("surpriseBtn").addEventListener("click", openSurpriseModal);
-        document.getElementById("heroRandomBtn").addEventListener("click", openSurpriseModal);
-        document.getElementById("closeModalBtn").addEventListener("click", closeSurpriseModal);
-        surpriseModal.addEventListener("click", (e) => {
-            if (e.target === surpriseModal) closeSurpriseModal();
-        });
+    }
+);
 
-        // Copy Track Code & Race Launch
-        document.getElementById("copyCodeBtn").addEventListener("click", () => {
-            const temp = document.createElement("textarea");
-            temp.value = "SNOWBALLZ-XMAS-25";
-            document.body.appendChild(temp);
-            temp.select();
-            document.execCommand("copy");
-            document.body.removeChild(temp);
-            showToast("Holiday track code SNOWBALLZ-XMAS-25 copied!");
-        });
 
-        document.getElementById("launchTrackBtn").addEventListener("click", () => {
-            launchGame("Snowball Blitz · Glacier #25");
-        });
+/* =========================================================
+   INITIALIZATION
+   ========================================================= */
 
-        // Live Clock
-        function updateClock() {
-            const now = new Date();
-            const days = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
-            document.getElementById("dayName").textContent = days[now.getDay()];
-            document.getElementById("fullDate").textContent = now.toLocaleDateString("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric"
-            });
-            document.getElementById("liveClock").textContent = now.toTimeString().split(" ")[0];
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
+document
+    .getElementById(
+        "year"
+    )
+    .textContent =
+    new Date().getFullYear();
 
-        // Initial Render & Entry Effects
-        renderGames();
-        scrambleHeroTitle();
-        animateCounters();
-    </script>
+
+updateDate();
+
+updateSchoolSchedule();
+
+loadWeather();
+
+updateChallengeTimer();
+
+
+setInterval(
+    updateSchoolSchedule,
+    1000
+);
+
+
+setInterval(
+    updateChallengeTimer,
+    1000
+);
+
+
+/*
+   Refresh weather every 10 minutes.
+*/
+
+setInterval(
+    loadWeather,
+    10 * 60 * 1000
+);
+
+
+loadGames();
+
+
+/* =========================================================
+   SNOW PARTICLES
+   ========================================================= */
+
+function createSnowflakes() {
+    const container = document.getElementById("snowContainer");
+    if (!container) return;
+
+    const count = window.innerWidth < 600 ? 45 : 80;
+
+    for (let i = 0; i < count; i++) {
+        const flake = document.createElement("div");
+        flake.className = "snowflake";
+
+        const size = 3 + Math.random() * 5; // thick white dots
+        const left = Math.random() * 100;
+        const duration = 14 + Math.random() * 20; // slow fall
+        const delay = Math.random() * -30;
+        const drift = (Math.random() - 0.5) * 60;
+
+        flake.style.left = left + "%";
+        flake.style.width = size + "px";
+        flake.style.height = size + "px";
+        flake.style.animationDuration = duration + "s";
+        flake.style.animationDelay = delay + "s";
+        flake.style.setProperty("--drift", drift + "px");
+        flake.style.opacity = 0.45 + Math.random() * 0.45;
+
+        container.appendChild(flake);
+    }
+}
+
+createSnowflakes();
+
+
+</script>
+
+
 </body>
 
 </html>
