@@ -1,0 +1,457 @@
+<html lang="en"><head><script src="/js/game-ready.js?v=3"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Highway Swerve</title>
+<meta name="description" content="Weave through highway traffic at 200 mph. Chain near misses into a cash streak and build your garage.">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="css/ui.css?v=36a0b42bcb">
+<link rel="stylesheet" href="css/meta.css?v=f2df59c383">
+<link rel="stylesheet" href="css/heat.css?v=3a6778b832">
+<link rel="stylesheet" href="css/damage.css?v=c247ecbebd">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #07080a; }
+  #view { position: fixed; inset: 0; width: 100%; height: 100%; display: block; outline: none; }
+  #hud, #garage, #menu, #meta { position: fixed; inset: 0; pointer-events: none; }
+  #fail { position: fixed; inset: 0; display: none; place-items: center; padding: 24px; color: #e8eaee; font: 16px/1.5 system-ui, sans-serif; text-align: center; background: #07080a; }
+</style>
+<script type="importmap">{ "imports": { "./js/audio.js": "./js/audio.js?v=7f5b008db4", "./js/bounty.js": "./js/bounty.js?v=67dc67639e", "./js/buildings.js": "./js/buildings.js?v=2c8e251be7", "./js/camera.js": "./js/camera.js?v=fcd3bdf9c1", "./js/cars.js": "./js/cars.js?v=65e9df0cf6", "./js/cloud.js": "./js/cloud.js?v=967d4c2ab1", "./js/clouds.js": "./js/clouds.js?v=d85f814ce3", "./js/credits.js": "./js/credits.js?v=6286f25dfa", "./js/damage.js": "./js/damage.js?v=c75e9e5267", "./js/damagehud.js": "./js/damagehud.js?v=d0767ad6d1", "./js/data.js": "./js/data.js?v=562643e44f", "./js/effects.js": "./js/effects.js?v=655ee56fdb", "./js/entry.js": "./js/entry.js?v=04bb3cb1d6", "./js/envkit.js": "./js/envkit.js?v=5b35f68d68", "./js/exits.js": "./js/exits.js?v=1035b6426b", "./js/garage.js": "./js/garage.js?v=15abee47f3", "./js/heat.js": "./js/heat.js?v=46963259d0", "./js/heathud.js": "./js/heathud.js?v=dbd4ac1013", "./js/heatmode.js": "./js/heatmode.js?v=0ff934a0a7", "./js/heatview.js": "./js/heatview.js?v=c368ef91af", "./js/hud.js": "./js/hud.js?v=f26fe24330", "./js/input.js": "./js/input.js?v=d9850ebf8f", "./js/main.js": "./js/main.js?v=e170796853", "./js/menu.js": "./js/menu.js?v=2e7ab822ec", "./js/meta.js": "./js/meta.js?v=566e562367", "./js/minimap.js": "./js/minimap.js?v=c492f6d1c1", "./js/models.js": "./js/models.js?v=930c401d1b", "./js/oval.js": "./js/oval.js?v=e80b6db185", "./js/ovalkit.js": "./js/ovalkit.js?v=d2f4b12bbd", "./js/ovalmodels.js": "./js/ovalmodels.js?v=ca2d9ff29e", "./js/photo.js": "./js/photo.js?v=ca1b076b51", "./js/police.js": "./js/police.js?v=90b545f1cf", "./js/post.js": "./js/post.js?v=0171fc1b19", "./js/progress.js": "./js/progress.js?v=f684b4d1ae", "./js/race.js": "./js/race.js?v=216b60f2f2", "./js/radio.js": "./js/radio.js?v=0e55b989f9", "./js/reflect.js": "./js/reflect.js?v=05fd5e75c3", "./js/route.js": "./js/route.js?v=b457829361", "./js/save.js": "./js/save.js?v=7b0e8e7c10", "./js/scoring.js": "./js/scoring.js?v=1c0eb8ce61", "./js/sky.js": "./js/sky.js?v=bc819cba29", "./js/traffic.js": "./js/traffic.js?v=f0b59ea10e", "./js/trees.js": "./js/trees.js?v=bd513297f9", "./js/vehicle.js": "./js/vehicle.js?v=4a2b2f637c", "./js/world.js": "./js/world.js?v=4e86c737a7", "./lib/GLTFLoader.js": "./lib/GLTFLoader.js?v=e74371fa55", "./lib/RoomEnvironment.js": "./lib/RoomEnvironment.js?v=597308a049", "./lib/math/SimplexNoise.js": "./lib/math/SimplexNoise.js?v=0faaa3788e", "./lib/meshopt_decoder.module.js": "./lib/meshopt_decoder.module.js?v=13ca8c58d3", "./lib/objects/Reflector.js": "./lib/objects/Reflector.js?v=cc0246fa78", "./lib/postprocessing/BokehPass.js": "./lib/postprocessing/BokehPass.js?v=b165c87726", "./lib/postprocessing/EffectComposer.js": "./lib/postprocessing/EffectComposer.js?v=4fb2e598b5", "./lib/postprocessing/GTAOPass.js": "./lib/postprocessing/GTAOPass.js?v=2b3e96e10e", "./lib/postprocessing/MaskPass.js": "./lib/postprocessing/MaskPass.js?v=073ba17b3f", "./lib/postprocessing/Pass.js": "./lib/postprocessing/Pass.js?v=7d7a080e24", "./lib/postprocessing/RenderPass.js": "./lib/postprocessing/RenderPass.js?v=3dc862c72e", "./lib/postprocessing/ShaderPass.js": "./lib/postprocessing/ShaderPass.js?v=5e27d49c30", "./lib/postprocessing/UnrealBloomPass.js": "./lib/postprocessing/UnrealBloomPass.js?v=5658041de1", "./lib/shaders/BokehShader.js": "./lib/shaders/BokehShader.js?v=3a8f3384fb", "./lib/shaders/CopyShader.js": "./lib/shaders/CopyShader.js?v=4a948e9acb", "./lib/shaders/GTAOShader.js": "./lib/shaders/GTAOShader.js?v=608dedcdcb", "./lib/shaders/LuminosityHighPassShader.js": "./lib/shaders/LuminosityHighPassShader.js?v=2aa7448714", "./lib/shaders/PoissonDenoiseShader.js": "./lib/shaders/PoissonDenoiseShader.js?v=c460ee8028", "./lib/three.module.min.js": "./lib/three.module.min.js?v=2992ecd75d", "./lib/utils/BufferGeometryUtils.js": "./lib/utils/BufferGeometryUtils.js?v=75fd8f4da9", "three": "./lib/three.module.min.js?v=2992ecd75d" } }</script>
+</head>
+<body>
+<canvas id="view" tabindex="0" data-engine="three.js r160" width="1443" height="984"></canvas>
+<div id="hud" class="hs-layer hs-hud hs-hud--hidden" aria-hidden="true">
+<div class="hs-vig" style="opacity: 0.3;"></div>
+<div class="hs-nosedge"></div>
+<div class="hs-edge"></div>
+<div class="hs-sweep"></div>
+<div class="hs-nm hs-nm--l"><i class="hs-nm__glow"></i><i class="hs-nm__chev"></i></div>
+<div class="hs-nm hs-nm--r"><i class="hs-nm__glow"></i><i class="hs-nm__chev"></i></div>
+<div class="hs-heli">
+  <div class="hs-heli__br hs-heli__br--tl"></div><div class="hs-heli__br hs-heli__br--tr"></div>
+  <div class="hs-heli__br hs-heli__br--bl"></div><div class="hs-heli__br hs-heli__br--br"></div>
+  <div class="hs-heli__ret"><svg viewBox="0 0 100 100"><path d="M50 8V36M50 64V92M8 50H36M64 50H92M30 22H22V30M70 22H78V30M30 78H22V70M70 78H78V70"></path><circle cx="50" cy="50" r="1.6"></circle></svg></div>
+  <div class="hs-heli__blk hs-heli__blk--bl">
+    <b><i class="hs-heli__rec"></i>REC</b><span data-h="clock">00:00:00</span>
+    <b>ZOOM</b><span data-h="zoom">1.0x</span>
+  </div>
+  <div class="hs-heli__blk hs-heli__blk--br">
+    <b>TARGET</b><span data-h="tgt">0 MPH</span>
+    <b>LAT</b><span data-h="lat"></span>
+    <b>LON</b><span data-h="lon"></span>
+  </div>
+  <div class="hs-heli__alt"><b>ALT FT</b><span data-h="alt">0</span></div>
+  <div class="hs-heli__hdg">
+    <div class="hs-heli__hdgv" data-h="hdg">000°</div>
+    <div class="hs-heli__tape"><div class="hs-heli__strip"><i class="hs-maj" style="left:0.000%"></i><em style="left:0.000%">300</em><i class="" style="left:1.042%"></i><i class="" style="left:2.083%"></i><i class="hs-maj" style="left:3.125%"></i><i class="" style="left:4.167%"></i><i class="" style="left:5.208%"></i><i class="hs-maj" style="left:6.250%"></i><em style="left:6.250%">330</em><i class="" style="left:7.292%"></i><i class="" style="left:8.333%"></i><i class="hs-maj" style="left:9.375%"></i><i class="" style="left:10.417%"></i><i class="" style="left:11.458%"></i><i class="hs-maj" style="left:12.500%"></i><em style="left:12.500%">N</em><i class="" style="left:13.542%"></i><i class="" style="left:14.583%"></i><i class="hs-maj" style="left:15.625%"></i><i class="" style="left:16.667%"></i><i class="" style="left:17.708%"></i><i class="hs-maj" style="left:18.750%"></i><em style="left:18.750%">030</em><i class="" style="left:19.792%"></i><i class="" style="left:20.833%"></i><i class="hs-maj" style="left:21.875%"></i><i class="" style="left:22.917%"></i><i class="" style="left:23.958%"></i><i class="hs-maj" style="left:25.000%"></i><em style="left:25.000%">060</em><i class="" style="left:26.042%"></i><i class="" style="left:27.083%"></i><i class="hs-maj" style="left:28.125%"></i><i class="" style="left:29.167%"></i><i class="" style="left:30.208%"></i><i class="hs-maj" style="left:31.250%"></i><em style="left:31.250%">E</em><i class="" style="left:32.292%"></i><i class="" style="left:33.333%"></i><i class="hs-maj" style="left:34.375%"></i><i class="" style="left:35.417%"></i><i class="" style="left:36.458%"></i><i class="hs-maj" style="left:37.500%"></i><em style="left:37.500%">120</em><i class="" style="left:38.542%"></i><i class="" style="left:39.583%"></i><i class="hs-maj" style="left:40.625%"></i><i class="" style="left:41.667%"></i><i class="" style="left:42.708%"></i><i class="hs-maj" style="left:43.750%"></i><em style="left:43.750%">150</em><i class="" style="left:44.792%"></i><i class="" style="left:45.833%"></i><i class="hs-maj" style="left:46.875%"></i><i class="" style="left:47.917%"></i><i class="" style="left:48.958%"></i><i class="hs-maj" style="left:50.000%"></i><em style="left:50.000%">S</em><i class="" style="left:51.042%"></i><i class="" style="left:52.083%"></i><i class="hs-maj" style="left:53.125%"></i><i class="" style="left:54.167%"></i><i class="" style="left:55.208%"></i><i class="hs-maj" style="left:56.250%"></i><em style="left:56.250%">210</em><i class="" style="left:57.292%"></i><i class="" style="left:58.333%"></i><i class="hs-maj" style="left:59.375%"></i><i class="" style="left:60.417%"></i><i class="" style="left:61.458%"></i><i class="hs-maj" style="left:62.500%"></i><em style="left:62.500%">240</em><i class="" style="left:63.542%"></i><i class="" style="left:64.583%"></i><i class="hs-maj" style="left:65.625%"></i><i class="" style="left:66.667%"></i><i class="" style="left:67.708%"></i><i class="hs-maj" style="left:68.750%"></i><em style="left:68.750%">W</em><i class="" style="left:69.792%"></i><i class="" style="left:70.833%"></i><i class="hs-maj" style="left:71.875%"></i><i class="" style="left:72.917%"></i><i class="" style="left:73.958%"></i><i class="hs-maj" style="left:75.000%"></i><em style="left:75.000%">300</em><i class="" style="left:76.042%"></i><i class="" style="left:77.083%"></i><i class="hs-maj" style="left:78.125%"></i><i class="" style="left:79.167%"></i><i class="" style="left:80.208%"></i><i class="hs-maj" style="left:81.250%"></i><em style="left:81.250%">330</em><i class="" style="left:82.292%"></i><i class="" style="left:83.333%"></i><i class="hs-maj" style="left:84.375%"></i><i class="" style="left:85.417%"></i><i class="" style="left:86.458%"></i><i class="hs-maj" style="left:87.500%"></i><em style="left:87.500%">N</em><i class="" style="left:88.542%"></i><i class="" style="left:89.583%"></i><i class="hs-maj" style="left:90.625%"></i><i class="" style="left:91.667%"></i><i class="" style="left:92.708%"></i><i class="hs-maj" style="left:93.750%"></i><em style="left:93.750%">030</em><i class="" style="left:94.792%"></i><i class="" style="left:95.833%"></i><i class="hs-maj" style="left:96.875%"></i><i class="" style="left:97.917%"></i><i class="" style="left:98.958%"></i><i class="hs-maj" style="left:100.000%"></i><em style="left:100.000%">060</em></div></div>
+  </div>
+</div>
+<div class="hs-tl" style="transform: none;">
+  <div class="hs-cashrow">
+    <div class="hs-cash"><i class="hs-cash__flash"></i><span class="hs-cash__tag">$</span><span class="hs-cash__v">2,500</span></div>
+    <div class="hs-boost"><b>2×</b><span>Cash</span><em>0:00</em></div>
+  </div>
+  <div class="hs-lvl"><span class="hs-lvl__n"><small>LV</small><b>1</b></span><span class="hs-lvl__bar"><i style="transform: scaleX(0);"></i></span></div>
+  <div class="hs-bans"><div class="hs-ban"><span class="hs-ban__k"></span><span class="hs-ban__t"></span><span class="hs-ban__r"></span></div><div class="hs-ban"><span class="hs-ban__k"></span><span class="hs-ban__t"></span><span class="hs-ban__r"></span></div><div class="hs-ban"><span class="hs-ban__k"></span><span class="hs-ban__t"></span><span class="hs-ban__r"></span></div></div>
+</div>
+<div class="hs-tr" style="transform: none;">
+  <div class="hs-dist"><span class="hs-dist__l">Run</span><span class="hs-dist__v">0.00</span><span class="hs-dist__u">mi</span></div>
+  <div class="hs-race">
+    <div class="hs-race__pos"><small class="hs-race__k">Position</small><b>1</b><span>/4</span></div>
+    <div class="hs-race__info">
+      <div class="hs-race__top"><span class="hs-race__name">Race</span><span class="hs-race__time">0:00.0</span></div>
+      <div class="hs-race__bar"><i></i></div>
+      <div class="hs-race__left"><b>0.00</b><span>mi to go</span></div>
+    </div>
+  </div>
+</div>
+<div class="hs-streak" data-tier="0">
+  <div class="hs-tape">Streak</div>
+  <div class="hs-streak__row">
+    <span class="hs-stake__v">$0</span>
+    <div class="hs-mult">
+      <div class="hs-mult__beat"><div class="hs-mult__in"><span class="hs-mult__x">×</span><span class="hs-mult__n">1</span></div></div>
+      <div class="hs-mult__flash" aria-hidden="true"><span class="hs-mult__x">×</span><span class="hs-mult__n">1</span></div>
+    </div>
+  </div>
+  <div class="hs-timer"><i class="hs-timer__fill"></i><i class="hs-burst hs-burst--l"></i><i class="hs-burst hs-burst--r"></i></div>
+  <div class="hs-next"><span class="hs-next__bar"><i></i></span><span class="hs-next__m">×2</span></div>
+  <div class="hs-feed"><div class="hs-ev"><div class="hs-ev__in"><b class="hs-ev__cash hs-plus"></b><span class="hs-ev__label"></span><span class="hs-ev__n"></span></div></div><div class="hs-ev"><div class="hs-ev__in"><b class="hs-ev__cash hs-plus"></b><span class="hs-ev__label"></span><span class="hs-ev__n"></span></div></div><div class="hs-ev"><div class="hs-ev__in"><b class="hs-ev__cash hs-plus"></b><span class="hs-ev__label"></span><span class="hs-ev__n"></span></div></div><div class="hs-ev"><div class="hs-ev__in"><b class="hs-ev__cash hs-plus"></b><span class="hs-ev__label"></span><span class="hs-ev__n"></span></div></div><div class="hs-ev"><div class="hs-ev__in"><b class="hs-ev__cash hs-plus"></b><span class="hs-ev__label"></span><span class="hs-ev__n"></span></div></div></div>
+</div>
+<div class="hs-over">
+  <div class="hs-over__head"><span class="hs-over__tag">Streak banked</span></div>
+  <div class="hs-over__cash hs-plus">$0</div>
+  <div class="hs-over__best"><span>Best</span><i class="hs-dot">·</i><b class="hs-over__bestv">×1</b></div>
+</div>
+<div class="hs-lights" data-lit="0">
+  <div class="hs-lights__box"><i></i><i></i><i></i></div>
+  <div class="hs-lights__n">3</div>
+</div>
+<div class="hs-res">
+  <div class="hs-res__tag">Finished</div>
+  <div class="hs-res__pos"><b>1</b><span>ST</span></div>
+  <div class="hs-res__row"><span class="hs-res__time">0:00.0</span><span class="hs-res__prize hs-plus">$0</span></div>
+</div>
+<div class="hs-br" style="transform: none;">
+  <div class="hs-inst">
+    <div class="hs-inst__shade"></div>
+    <div class="hs-inst__glow"></div>
+    <svg class="hs-arc" viewBox="0 0 200 200" aria-hidden="true">
+    <path class="hs-arc__track" d="M36.36 163.64A90 90 0 1 1 163.64 163.64"></path>
+    <path class="hs-arc__red" d="M193.75 111.84A94.5 94.5 0 0 1 166.82 166.82"></path>
+    <path class="hs-arc__rev" pathLength="1" d="M36.36 163.64A90 90 0 1 1 163.64 163.64" style="stroke-dashoffset: 0.8796;"></path>
+    <g class="hs-arc__ticks"><path class="hs-tick hs-tick--maj" d="M38.13 161.87L43.43 156.57"></path><path class="hs-tick" d="M31.28 154.17L34.03 152.00"></path><path class="hs-tick" d="M25.39 145.72L28.38 143.89"></path><path class="hs-tick" d="M20.54 136.63L23.72 135.17"></path><path class="hs-tick" d="M16.78 127.04L20.11 125.96"></path><path class="hs-tick hs-tick--maj" d="M14.18 117.07L21.54 115.61"></path><path class="hs-tick" d="M12.77 106.87L16.26 106.59"></path><path class="hs-tick" d="M12.57 96.56L16.06 96.70"></path><path class="hs-tick" d="M13.58 86.31L17.03 86.86"></path><path class="hs-tick" d="M15.79 76.25L19.15 77.20"></path><path class="hs-tick hs-tick--maj" d="M19.16 66.52L26.09 69.39"></path><path class="hs-tick" d="M23.66 57.25L26.71 58.96"></path><path class="hs-tick" d="M29.21 48.57L32.04 50.63"></path><path class="hs-tick" d="M35.75 40.60L38.32 42.98"></path><path class="hs-tick" d="M43.17 33.46L45.45 36.13"></path><path class="hs-tick hs-tick--maj" d="M51.39 27.25L55.55 33.48"></path><path class="hs-tick" d="M60.28 22.04L61.86 25.16"></path><path class="hs-tick" d="M69.71 17.91L70.93 21.19"></path><path class="hs-tick" d="M79.57 14.92L80.39 18.32"></path><path class="hs-tick" d="M89.72 13.11L90.13 16.58"></path><path class="hs-tick hs-tick--maj" d="M100.00 12.50L100.00 20.00"></path><path class="hs-tick" d="M110.28 13.11L109.87 16.58"></path><path class="hs-tick" d="M120.43 14.92L119.61 18.32"></path><path class="hs-tick" d="M130.29 17.91L129.07 21.19"></path><path class="hs-tick" d="M139.72 22.04L138.14 25.16"></path><path class="hs-tick hs-tick--maj" d="M148.61 27.25L144.45 33.48"></path><path class="hs-tick" d="M156.83 33.46L154.55 36.13"></path><path class="hs-tick" d="M164.25 40.60L161.68 42.98"></path><path class="hs-tick" d="M170.79 48.57L167.96 50.63"></path><path class="hs-tick" d="M176.34 57.25L173.29 58.96"></path><path class="hs-tick hs-tick--maj" d="M180.84 66.52L173.91 69.39"></path><path class="hs-tick" d="M184.21 76.25L180.85 77.20"></path><path class="hs-tick" d="M186.42 86.31L182.97 86.86"></path><path class="hs-tick" d="M187.43 96.56L183.94 96.70"></path><path class="hs-tick" d="M187.23 106.87L183.74 106.59"></path><path class="hs-tick hs-tick--maj hs-tick--red" d="M185.82 117.07L178.46 115.61"></path><path class="hs-tick hs-tick--red" d="M183.22 127.04L179.89 125.96"></path><path class="hs-tick hs-tick--red" d="M179.46 136.63L176.28 135.17"></path><path class="hs-tick hs-tick--red" d="M174.61 145.72L171.62 143.89"></path><path class="hs-tick hs-tick--red" d="M168.72 154.17L165.97 152.00"></path><path class="hs-tick hs-tick--maj hs-tick--red" d="M161.87 161.87L156.57 156.57"></path></g><g class="hs-arc__nums"><text class="" x="49.80" y="153.60">0</text><text class="" x="30.36" y="117.25">1</text><text class="" x="34.40" y="76.23">2</text><text class="" x="60.55" y="44.37">3</text><text class="" x="100.00" y="32.40">4</text><text class="" x="139.45" y="44.37">5</text><text class="" x="165.60" y="76.23">6</text><text class="hs-tick--red" x="169.64" y="117.25">7</text><text class="hs-tick--red" x="150.20" y="153.60">8</text></g>
+    <path class="hs-nosarc hs-nosarc__track" d="M57.57 142.43A60 60 0 0 1 53.37 62.24"></path>
+    <path class="hs-nosarc hs-nosarc__fill" pathLength="1" d="M57.57 142.43A60 60 0 0 1 53.37 62.24"></path>
+  </svg>
+    <div class="hs-needle" style="transform: rotate(-102.5deg);"></div>
+    <div class="hs-gear" data-g="1">1</div>
+    <div class="hs-unit">MPH</div>
+    <div class="hs-shift">Shift</div>
+    <div class="hs-nos"><span class="hs-nos__l">Nitro</span><span class="hs-nos__bar"><i></i></span></div>
+    <div class="hs-speed"><i></i><i></i><i>0</i></div>
+  </div>
+</div>
+<div class="hs-fly hs-plus"></div><div class="hs-fly hs-plus"></div>
+<div class="hs-toast"></div>
+<div class="hs-zone" role="status"><span class="hs-zone__t">Speed zone</span><b class="hs-zone__v"></b><span class="hs-zone__u"></span><i class="hs-zone__bar"><i></i></i></div>
+<div class="hs-hint" role="status"></div><div class="hs-map"><canvas aria-hidden="true"></canvas><div class="hs-map__next" role="status"></div></div><div class="hsh" data-mode="" style="display: none;">
+      <div class="hsh-top">
+        <div class="hsh-stars" aria-label="Wanted stars"><i>★</i><i>★</i><i>★</i><i>★</i><i>★</i></div>
+        <div class="hsh-eye" title="Seen or unseen"><svg class="hsh-ring" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17"></circle></svg><span class="hsh-eye__i"></span></div>
+      </div>
+      <div class="hsh-money">
+        <div class="hsh-hot"><small>Hot</small><b>$0</b></div>
+        <div class="hsh-bank"><small>Banked</small><b>$0</b></div>
+        <div class="hsh-wanted"></div>
+      </div>
+      <div class="hsh-bust"><span>Busted in</span><i><b></b></i></div>
+      <div class="hsh-sign"><b></b><span></span></div>
+      <div class="hsh-big"><small></small><b></b></div>
+      <div class="hsh-note"></div>
+      <div class="hsh-tags"></div>
+      <div class="hsh-lock"><span class="hsh-lock__t"></span><i><b></b></i></div></div><div class="hsd" aria-hidden="true">
+      <div class="hsd-read">
+        <div class="hsd-cond hsd-b0"><small>Condition</small><b>100%</b></div>
+        <div class="hsd-engw hsd-engw--s0">Engine OK</div>
+        <div class="hsd-rep hsd-rep--free"><span class="hs-key hsd-key">R</span><small>Repair</small><b>Free</b></div>
+      </div>
+      <div class="hsd-car"><svg class="hsd-svg" viewBox="0 0 60 100" aria-hidden="true">
+    <rect class="hsd-z hsd-b0" data-z="fl" x="3.6" y="13" width="6" height="15" rx="1.8"></rect>
+    <rect class="hsd-z hsd-b0" data-z="fr" x="50.4" y="13" width="6" height="15" rx="1.8"></rect>
+    <rect class="hsd-z hsd-b0" data-z="rl" x="3.6" y="71" width="6" height="15" rx="1.8"></rect>
+    <rect class="hsd-z hsd-b0" data-z="rr" x="50.4" y="71" width="6" height="15" rx="1.8"></rect>
+    <path class="hsd-z hsd-b0" data-z="front" d="M11.6 26 L12 15 C12.4 8.8 16 5.4 23 5.4 L37 5.4 C44 5.4 47.6 8.8 48 15 L48.4 26 Z"></path>
+    <path class="hsd-z hsd-b0" data-z="left" d="M11.6 27.8 L18.6 27.8 L18.6 72.2 L11.6 72.2 Q10.4 50 11.6 27.8 Z"></path>
+    <path class="hsd-z hsd-b0" data-z="right" d="M48.4 27.8 L41.4 27.8 L41.4 72.2 L48.4 72.2 Q49.6 50 48.4 27.8 Z"></path>
+    <path class="hsd-z hsd-b0" data-z="rear" d="M11.6 74 L48.4 74 L48 85 C47.6 91.2 44 94.6 37 94.6 L23 94.6 C16 94.6 12.4 91.2 12 85 Z"></path>
+    <path class="hsd-cab" d="M21.4 31 Q30 27.6 38.6 31 L39.4 69.4 Q30 71.6 20.6 69.4 Z"></path>
+    <path class="hsd-cab hsd-ln" d="M22 39.5 Q30 36.8 38 39.5 M21.4 63.5 Q30 65.6 38.6 63.5"></path>
+    <g class="hsd-z hsd-eng hsd-b0" data-z="engine"><rect x="21.5" y="10" width="17" height="12" rx="1.6"></rect><path d="M24.5 14 H35.5 M24.5 18 H35.5"></path></g>
+  </svg></div></div></div>
+<div id="garage" class="hs-layer hs-garage">
+      
+<div class="hs-brand hs-sign" role="img" aria-label="Highway Swerve">
+  <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M11 37V30C11 21 27 22 27 12V9" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"></path><path d="M18.5 12.5L27 3L35.5 12.5Z" fill="#fff"></path></svg>
+  <div class="hs-brand__txt"><span class="hs-brand__a">HIGHWAY</span><span class="hs-brand__b">SWERVE</span></div>
+</div>
+      <div class="hs-note" role="status" aria-live="polite"></div>
+      <div class="hs-top">
+        <div class="hs-cash hs-plate" aria-label="Cash"><span class="hs-cash__tag">$</span><span class="hs-cash__v">2,500</span><span class="hs-cash__delta"></span></div>
+        <button class="hs-iconbtn" data-hs-nav="" data-act="settings"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="8" stroke-width="5" stroke-dasharray="3.4 2.883" transform="rotate(-12 12 12)"></circle><circle cx="12" cy="12" r="5.4" stroke-width="3.4"></circle></svg><span>Settings</span></button>
+      </div>
+      <section class="hs-panel hs-cars" aria-label="Cars">
+        <h2 class="hs-h"><span>Cars</span></h2>
+        <div class="hs-cars__list"><div class="hs-cars__grp" aria-hidden="true">Street</div><button class="hs-car hs-car--shown" data-hs-nav="" data-car="kestrel" style="--rc:#b9c0c8" aria-pressed="true" aria-label="Kestrel 1.6, Hot hatch, Common, owned">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class=""></i><i class=""></i><i class=""></i></span>
+        <span><span class="hs-car__name">Kestrel 1.6</span><span class="hs-car__sub">Hot hatch<i class="hs-dot">·</i><span class="hs-rar">Common</span></span></span>
+        <span class="hs-car__state hs-car__state--own" data-v="Owned">Owned</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="pip" style="--rc:#b9c0c8" aria-pressed="false" aria-label="Pip 1275, Classic mini, Common, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class=""></i><i class=""></i><i class=""></i></span>
+        <span><span class="hs-car__name">Pip 1275</span><span class="hs-car__sub">Classic mini<i class="hs-dot">·</i><span class="hs-rar">Common</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="wren" style="--rc:#b9c0c8" aria-pressed="false" aria-label="Wren 2500, Classic roadster, Common, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class=""></i><i class=""></i><i class=""></i></span>
+        <span><span class="hs-car__name">Wren 2500</span><span class="hs-car__sub">Classic roadster<i class="hs-dot">·</i><span class="hs-rar">Common</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="nordling" style="--rc:#b9c0c8" aria-pressed="false" aria-label="Nordling 2.3T, Saloon, Common, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class=""></i><i class=""></i><i class=""></i></span>
+        <span><span class="hs-car__name">Nordling 2.3T</span><span class="hs-car__sub">Saloon<i class="hs-dot">·</i><span class="hs-rar">Common</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="mote" style="--rc:#b9c0c8" aria-pressed="false" aria-label="Mote EV, City car, Common, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class=""></i><i class=""></i><i class=""></i></span>
+        <span><span class="hs-car__name">Mote EV</span><span class="hs-car__sub">City car<i class="hs-dot">·</i><span class="hs-rar">Common</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="suzu" style="--rc:#b9c0c8" aria-pressed="false" aria-label="Suzu 800, Classic roadster, Common, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class=""></i><i class=""></i><i class=""></i></span>
+        <span><span class="hs-car__name">Suzu 800</span><span class="hs-car__sub">Classic roadster<i class="hs-dot">·</i><span class="hs-rar">Common</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="drifter" style="--rc:#b9c0c8" aria-pressed="false" aria-label="Drifter 253, Panel wagon, Common, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class=""></i><i class=""></i><i class=""></i></span>
+        <span><span class="hs-car__name">Drifter 253</span><span class="hs-car__sub">Panel wagon<i class="hs-dot">·</i><span class="hs-rar">Common</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="shiro" style="--rc:#b9c0c8" aria-pressed="false" aria-label="Shiro 1600, Sports coupe, Common, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class=""></i><i class=""></i><i class=""></i></span>
+        <span><span class="hs-car__name">Shiro 1600</span><span class="hs-car__sub">Sports coupe<i class="hs-dot">·</i><span class="hs-rar">Common</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="marlow" style="--rc:#b9c0c8" aria-pressed="false" aria-label="Marlow GT, Coupe, Common, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class=""></i><i class=""></i><i class=""></i></span>
+        <span><span class="hs-car__name">Marlow GT</span><span class="hs-car__sub">Coupe<i class="hs-dot">·</i><span class="hs-rar">Common</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><div class="hs-cars__grp" aria-hidden="true">Sport</div><button class="hs-car hs-car--locked" data-hs-nav="" data-car="vela" style="--rc:#b9c0c8" aria-pressed="false" aria-label="Vela GT, Classic coupe, Common, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class="hs-on"></i><i class=""></i><i class=""></i></span>
+        <span><span class="hs-car__name">Vela GT</span><span class="hs-car__sub">Classic coupe<i class="hs-dot">·</i><span class="hs-rar">Common</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="zarya" style="--rc:#5fd38a" aria-pressed="false" aria-label="Zarya 101, Classic roadster, Uncommon, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class="hs-on"></i><i class=""></i><i class=""></i></span>
+        <span><span class="hs-car__name">Zarya 101</span><span class="hs-car__sub">Classic roadster<i class="hs-dot">·</i><span class="hs-rar">Uncommon</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="ardent" style="--rc:#5fd38a" aria-pressed="false" aria-label="Ardent R6, Sports coupe, Uncommon, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class="hs-on"></i><i class=""></i><i class=""></i></span>
+        <span><span class="hs-car__name">Ardent R6</span><span class="hs-car__sub">Sports coupe<i class="hs-dot">·</i><span class="hs-rar">Uncommon</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="wisp" style="--rc:#5fd38a" aria-pressed="false" aria-label="Wisp S1, Roadster, Uncommon, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class="hs-on"></i><i class=""></i><i class=""></i></span>
+        <span><span class="hs-car__name">Wisp S1</span><span class="hs-car__sub">Roadster<i class="hs-dot">·</i><span class="hs-rar">Uncommon</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="jackal" style="--rc:#5fd38a" aria-pressed="false" aria-label="Jackal 390, Pony car, Uncommon, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class="hs-on"></i><i class=""></i><i class=""></i></span>
+        <span><span class="hs-car__name">Jackal 390</span><span class="hs-car__sub">Pony car<i class="hs-dot">·</i><span class="hs-rar">Uncommon</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="kenji" style="--rc:#5fd38a" aria-pressed="false" aria-label="Kenji 2000, Classic coupe, Uncommon, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class="hs-on"></i><i class=""></i><i class=""></i></span>
+        <span><span class="hs-car__name">Kenji 2000</span><span class="hs-car__sub">Classic coupe<i class="hs-dot">·</i><span class="hs-rar">Uncommon</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="brawler" style="--rc:#5fd38a" aria-pressed="false" aria-label="Brawler 427, Muscle, Uncommon, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class="hs-on"></i><i class=""></i><i class=""></i></span>
+        <span><span class="hs-car__name">Brawler 427</span><span class="hs-car__sub">Muscle<i class="hs-dot">·</i><span class="hs-rar">Uncommon</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="ironside" style="--rc:#5fd38a" aria-pressed="false" aria-label="Ironside 440, Muscle, Uncommon, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class="hs-on"></i><i class=""></i><i class=""></i></span>
+        <span><span class="hs-car__name">Ironside 440</span><span class="hs-car__sub">Muscle<i class="hs-dot">·</i><span class="hs-rar">Uncommon</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="halvard" style="--rc:#5fd38a" aria-pressed="false" aria-label="Halvard E8, Executive saloon, Uncommon, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class="hs-on"></i><i class=""></i><i class=""></i></span>
+        <span><span class="hs-car__name">Halvard E8</span><span class="hs-car__sub">Executive saloon<i class="hs-dot">·</i><span class="hs-rar">Uncommon</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="vanta" style="--rc:#4aa3ff" aria-pressed="false" aria-label="Vanta RS, Sports, Rare, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class="hs-on"></i><i class=""></i><i class=""></i></span>
+        <span><span class="hs-car__name">Vanta RS</span><span class="hs-car__sub">Sports<i class="hs-dot">·</i><span class="hs-rar">Rare</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><div class="hs-cars__grp" aria-hidden="true">Super</div><button class="hs-car hs-car--locked" data-hs-nav="" data-car="bramble" style="--rc:#4aa3ff" aria-pressed="false" aria-label="Bramble Turbo, Classic sports, Rare, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class="hs-on"></i><i class="hs-on"></i><i class=""></i></span>
+        <span><span class="hs-car__name">Bramble Turbo</span><span class="hs-car__sub">Classic sports<i class="hs-dot">·</i><span class="hs-rar">Rare</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="serafina" style="--rc:#4aa3ff" aria-pressed="false" aria-label="Serafina V6, Grand tourer, Rare, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class="hs-on"></i><i class="hs-on"></i><i class=""></i></span>
+        <span><span class="hs-car__name">Serafina V6</span><span class="hs-car__sub">Grand tourer<i class="hs-dot">·</i><span class="hs-rar">Rare</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="raijin" style="--rc:#4aa3ff" aria-pressed="false" aria-label="Raijin GT, Supercar, Rare, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class="hs-on"></i><i class="hs-on"></i><i class=""></i></span>
+        <span><span class="hs-car__name">Raijin GT</span><span class="hs-car__sub">Supercar<i class="hs-dot">·</i><span class="hs-rar">Rare</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="havoc" style="--rc:#4aa3ff" aria-pressed="false" aria-label="Havoc Z7, Sports, Rare, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class="hs-on"></i><i class="hs-on"></i><i class=""></i></span>
+        <span><span class="hs-car__name">Havoc Z7</span><span class="hs-car__sub">Sports<i class="hs-dot">·</i><span class="hs-rar">Rare</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="scorpia" style="--rc:#b46bff" aria-pressed="false" aria-label="Scorpia V10, Supercar, Epic, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class="hs-on"></i><i class="hs-on"></i><i class=""></i></span>
+        <span><span class="hs-car__name">Scorpia V10</span><span class="hs-car__sub">Supercar<i class="hs-dot">·</i><span class="hs-rar">Epic</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="solace" style="--rc:#b46bff" aria-pressed="false" aria-label="Solace V12, Supercar, Epic, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class="hs-on"></i><i class="hs-on"></i><i class=""></i></span>
+        <span><span class="hs-car__name">Solace V12</span><span class="hs-car__sub">Supercar<i class="hs-dot">·</i><span class="hs-rar">Epic</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><div class="hs-cars__grp" aria-hidden="true">Hyper</div><button class="hs-car hs-car--locked" data-hs-nav="" data-car="nyx" style="--rc:#ffb02e" aria-pressed="false" aria-label="Nyx E, Electric hypercar, Legendary, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class="hs-on"></i><i class="hs-on"></i><i class="hs-on"></i></span>
+        <span><span class="hs-car__name">Nyx E</span><span class="hs-car__sub">Electric hypercar<i class="hs-dot">·</i><span class="hs-rar">Legendary</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="ampere" style="--rc:#ffb02e" aria-pressed="false" aria-label="Ampere R, Electric GT, Legendary, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class="hs-on"></i><i class="hs-on"></i><i class="hs-on"></i></span>
+        <span><span class="hs-car__name">Ampere R</span><span class="hs-car__sub">Electric GT<i class="hs-dot">·</i><span class="hs-rar">Legendary</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="apex" style="--rc:#ffb02e" aria-pressed="false" aria-label="Apex Zero, Hypercar, Legendary, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class="hs-on"></i><i class="hs-on"></i><i class="hs-on"></i></span>
+        <span><span class="hs-car__name">Apex Zero</span><span class="hs-car__sub">Hypercar<i class="hs-dot">·</i><span class="hs-rar">Legendary</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><div class="hs-cars__grp" aria-hidden="true">Motorcycles</div><button class="hs-car hs-car--locked" data-hs-nav="" data-car="wraith" style="--rc:#5fd38a" aria-pressed="false" aria-label="Wraith 600, Sport bike, Uncommon, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class="hs-on"></i><i class=""></i><i class=""></i></span>
+        <span><span class="hs-car__name">Wraith 600</span><span class="hs-car__sub">Sport bike<i class="hs-dot">·</i><span class="hs-rar">Uncommon</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button><button class="hs-car hs-car--locked" data-hs-nav="" data-car="talon" style="--rc:#4aa3ff" aria-pressed="false" aria-label="Talon 1000, Superbike, Rare, from car crates">
+        <span class="hs-car__tier" aria-hidden="true"><i class="hs-on"></i><i class="hs-on"></i><i class="hs-on"></i><i class=""></i></span>
+        <span><span class="hs-car__name">Talon 1000</span><span class="hs-car__sub">Superbike<i class="hs-dot">·</i><span class="hs-rar">Rare</span></span></span>
+        <span class="hs-car__state hs-car__state--crate" data-v="&lt;i class=&quot;hs-lock&quot;&gt;&lt;/i&gt;Crates"><i class="hs-lock"></i>Crates</span>
+      </button></div>
+        <div class="hs-rec">
+          <h3 class="hs-h"><span>Records</span></h3>
+          <div>Best streak <b data-rec="streak">$0</b></div><div>Best multiplier <b data-rec="mult">x1</b></div>
+          <div>Top speed <b data-rec="top">0 mph</b></div><div>Driven <b data-rec="dist">0.0 mi</b></div>
+        </div>
+      </section>
+      <section class="hs-panel hs-spec" aria-label="Selected car">
+        <div class="hs-spec__head"><span class="hs-spec__rar hs-rar" style="--rc: #b9c0c8;">Common</span><h2 class="hs-spec__name">Kestrel 1.6</h2><span class="hs-spec__sub">Hot hatch<i class="hs-dot">·</i>Street<i class="hs-dot">·</i>FWD</span></div>
+        <div class="hs-stats">
+          <div class="hs-bars"><span>Speed</span><div class="hs-bar" data-bar="speed"><i class="hs-bar__ghost" style="transform: scaleX(0);"></i><i class="hs-bar__fill" style="transform: scaleX(0.23);"></i></div><span>Accel</span><div class="hs-bar" data-bar="accel"><i class="hs-bar__ghost" style="transform: scaleX(0);"></i><i class="hs-bar__fill" style="transform: scaleX(0.67);"></i></div><span>Handling</span><div class="hs-bar" data-bar="handling"><i class="hs-bar__ghost" style="transform: scaleX(0);"></i><i class="hs-bar__fill" style="transform: scaleX(0.159);"></i></div><span>Braking</span><div class="hs-bar" data-bar="braking"><i class="hs-bar__ghost" style="transform: scaleX(0);"></i><i class="hs-bar__fill" style="transform: scaleX(0.111);"></i></div></div>
+          <div class="hs-figs">
+            <div class="hs-fig"><span class="hs-fig__l">Top speed</span><span class="hs-fig__d" data-fig="topd"></span><span class="hs-fig__v" data-fig="top">130</span><span class="hs-fig__u" data-fig="topu">mph</span></div>
+            <div class="hs-fig"><span class="hs-fig__l" data-fig="zl">0–60 mph</span><span class="hs-fig__d" data-fig="zd"></span><span class="hs-fig__v" data-fig="z">4.6</span><span class="hs-fig__u">s</span></div>
+          </div>
+        </div>
+        <div>
+          <h3 class="hs-h"><span>Upgrades</span></h3>
+          <div class="hs-ups"><button class="hs-up" data-hs-nav="" data-track="engine" aria-disabled="false" aria-label="Engine, Stock. Next: Stage 1, $1,200">
+        <span class="hs-up__name">Engine<span class="hs-up__pips" aria-hidden="true"><i></i><i></i><i></i></span></span>
+        <span class="hs-up__price">$1,200</span>
+        <span class="hs-up__step">Stock › <b>Stage 1</b></span>
+        <span class="hs-up__tag">Buy</span>
+      </button><button class="hs-up" data-hs-nav="" data-track="turbo" aria-disabled="false" aria-label="Turbo, None. Next: Stage 1, $1,450">
+        <span class="hs-up__name">Turbo<span class="hs-up__pips" aria-hidden="true"><i></i><i></i><i></i></span></span>
+        <span class="hs-up__price">$1,450</span>
+        <span class="hs-up__step">None › <b>Stage 1</b></span>
+        <span class="hs-up__tag">Buy</span>
+      </button><button class="hs-up" data-hs-nav="" data-track="tires" aria-disabled="false" aria-label="Tires, Road. Next: Sport, $950">
+        <span class="hs-up__name">Tires<span class="hs-up__pips" aria-hidden="true"><i></i><i></i></span></span>
+        <span class="hs-up__price">$950</span>
+        <span class="hs-up__step">Road › <b>Sport</b></span>
+        <span class="hs-up__tag">Buy</span>
+      </button><button class="hs-up" data-hs-nav="" data-track="handling" aria-disabled="false" aria-label="Handling, Stock. Next: Sport, $850">
+        <span class="hs-up__name">Handling<span class="hs-up__pips" aria-hidden="true"><i></i><i></i></span></span>
+        <span class="hs-up__price">$850</span>
+        <span class="hs-up__step">Stock › <b>Sport</b></span>
+        <span class="hs-up__tag">Buy</span>
+      </button><button class="hs-up" data-hs-nav="" data-track="brakes" aria-disabled="false" aria-label="Brakes, Stock. Next: Sport, $700">
+        <span class="hs-up__name">Brakes<span class="hs-up__pips" aria-hidden="true"><i></i><i></i></span></span>
+        <span class="hs-up__price">$700</span>
+        <span class="hs-up__step">Stock › <b>Sport</b></span>
+        <span class="hs-up__tag">Buy</span>
+      </button><button class="hs-up" data-hs-nav="" data-track="weight" aria-disabled="false" aria-label="Weight, Stock. Next: Stripped, $850">
+        <span class="hs-up__name">Weight<span class="hs-up__pips" aria-hidden="true"><i></i><i></i></span></span>
+        <span class="hs-up__price">$850</span>
+        <span class="hs-up__step">Stock › <b>Stripped</b></span>
+        <span class="hs-up__tag">Buy</span>
+      </button><button class="hs-up" data-hs-nav="" data-track="nitro" aria-disabled="false" aria-label="Nitrous, None. Next: 50 shot, $1,700">
+        <span class="hs-up__name">Nitrous<span class="hs-up__pips" aria-hidden="true"><i></i><i></i><i></i></span></span>
+        <span class="hs-up__price">$1,700</span>
+        <span class="hs-up__step">None › <b>50 shot</b></span>
+        <span class="hs-up__tag">Buy</span>
+      </button></div>
+        </div>
+        <div>
+          <h3 class="hs-h"><span>Paint</span></h3>
+          <div class="hs-paints"><button class="hs-sw hs-sw--cur" data-hs-nav="" data-paint="chalk" data-finish="gloss" style="--sw:#f2efe6;--k:#0a0e13" aria-label="Chalk"><i></i></button><button class="hs-sw" data-hs-nav="" data-paint="graphite" data-finish="gloss" style="--sw:#2b2f36;--k:#fff" aria-label="Graphite"><i></i></button><button class="hs-sw hs-sw--locked" data-hs-nav="" data-paint="signal" data-finish="gloss" style="--sw:#c2261d;--k:#fff" aria-label="Signal Red"><i></i></button><button class="hs-sw hs-sw--locked" data-hs-nav="" data-paint="cobalt" data-finish="gloss" style="--sw:#1f4fd1;--k:#fff" aria-label="Cobalt"><i></i></button><button class="hs-sw hs-sw--locked" data-hs-nav="" data-paint="amber" data-finish="gloss" style="--sw:#e8a614;--k:#0a0e13" aria-label="Amber"><i></i></button><button class="hs-sw hs-sw--locked" data-hs-nav="" data-paint="forest" data-finish="gloss" style="--sw:#1f6b43;--k:#fff" aria-label="Forest"><i></i></button><button class="hs-sw hs-sw--locked" data-hs-nav="" data-paint="ice" data-finish="gloss" style="--sw:#9fd3e6;--k:#0a0e13" aria-label="Ice Blue"><i></i></button><button class="hs-sw hs-sw--locked" data-hs-nav="" data-paint="violet" data-finish="gloss" style="--sw:#6a3fd6;--k:#fff" aria-label="Violet"><i></i></button><button class="hs-sw hs-sw--locked" data-hs-nav="" data-paint="tangerine" data-finish="gloss" style="--sw:#f0641e;--k:#fff" aria-label="Tangerine"><i></i></button><button class="hs-sw hs-sw--locked" data-hs-nav="" data-paint="mint" data-finish="gloss" style="--sw:#7fe0b0;--k:#0a0e13" aria-label="Mint"><i></i></button><button class="hs-sw hs-sw--locked" data-hs-nav="" data-paint="obsidian" data-finish="gloss" style="--sw:#0c0d10;--k:#fff" aria-label="Obsidian"><i></i></button><button class="hs-sw hs-sw--locked" data-hs-nav="" data-paint="gold" data-finish="gloss" style="--sw:#c9a227;--k:#0a0e13" aria-label="Bullion"><i></i></button></div>
+          <div class="hs-paints hs-paints--crate"><span class="hs-paints__crate" aria-hidden="true">Crate<br>finishes</span><button class="hs-sw hs-sw--crate hs-sw--locked" data-hs-nav="" data-paint="c_slate" data-finish="matte" style="--sw:#4a5560;--k:#fff;--rc:#5fd38a" aria-label="Matte Slate"><i></i></button><button class="hs-sw hs-sw--crate hs-sw--locked" data-hs-nav="" data-paint="c_olive" data-finish="matte" style="--sw:#5d6b3a;--k:#fff;--rc:#5fd38a" aria-label="Matte Olive"><i></i></button><button class="hs-sw hs-sw--crate hs-sw--locked" data-hs-nav="" data-paint="c_coral" data-finish="pearl" style="--sw:#ff6f61;--k:#0a0e13;--rc:#4aa3ff" aria-label="Coral Pearl"><i></i></button><button class="hs-sw hs-sw--crate hs-sw--locked" data-hs-nav="" data-paint="c_lagoon" data-finish="pearl" style="--sw:#1fb5b0;--k:#fff;--rc:#4aa3ff" aria-label="Lagoon Pearl"><i></i></button><button class="hs-sw hs-sw--crate hs-sw--locked" data-hs-nav="" data-paint="c_plum" data-finish="pearl" style="--sw:#3b1d5e;--k:#fff;--rc:#4aa3ff" aria-label="Midnight Plum"><i></i></button><button class="hs-sw hs-sw--crate hs-sw--locked" data-hs-nav="" data-paint="c_blackout" data-finish="matte" style="--sw:#050506;--k:#fff;--rc:#b46bff" aria-label="Blackout"><i></i></button><button class="hs-sw hs-sw--crate hs-sw--locked" data-hs-nav="" data-paint="c_candy" data-finish="candy" style="--sw:#b80f2a;--k:#fff;--rc:#b46bff" aria-label="Candy Red"><i></i></button><button class="hs-sw hs-sw--crate hs-sw--locked" data-hs-nav="" data-paint="c_chrome" data-finish="chrome" style="--sw:#d5dadf;--k:#0a0e13;--rc:#ffb02e" aria-label="Chrome"><i></i></button><button class="hs-sw hs-sw--crate hs-sw--locked" data-hs-nav="" data-paint="c_goldchrome" data-finish="chrome" style="--sw:#e2b53c;--k:#0a0e13;--rc:#ffb02e" aria-label="Gold Chrome"><i></i></button></div>
+          <div class="hs-paintinfo">On the car: <b>Chalk</b></div>
+        </div>
+      </section>
+      <div class="hs-act">
+        <button class="hs-go hs-sign" data-hs-nav="" data-act="go" aria-disabled="false" aria-label="Drive Kestrel 1.6">
+          <span><span class="hs-go__main">DRIVE</span><span class="hs-go__sub"></span></span>
+          <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 36V10" stroke="#fff" stroke-width="6" stroke-linecap="round"></path><path d="M8 17L20 4L32 17Z" fill="#fff"></path></svg>
+        </button>
+        <div class="hs-hint" data-v="&lt;kbd class=&quot;hs-key&quot;&gt;↑&lt;/kbd&gt;&lt;kbd class=&quot;hs-key&quot;&gt;↓&lt;/kbd&gt;&lt;kbd class=&quot;hs-key&quot;&gt;←&lt;/kbd&gt;&lt;kbd class=&quot;hs-key&quot;&gt;→&lt;/kbd&gt;&lt;span&gt;Move&lt;/span&gt;&lt;kbd class=&quot;hs-key&quot;&gt;Enter&lt;/kbd&gt;&lt;span&gt;Select&lt;/span&gt;&lt;kbd class=&quot;hs-key&quot;&gt;Esc&lt;/kbd&gt;&lt;span&gt;Back&lt;/span&gt;"><kbd class="hs-key">↑</kbd><kbd class="hs-key">↓</kbd><kbd class="hs-key">←</kbd><kbd class="hs-key">→</kbd><span>Move</span><kbd class="hs-key">Enter</kbd><span>Select</span><kbd class="hs-key">Esc</kbd><span>Back</span></div>
+      </div></div>
+<div id="meta" class="hsm-root hsm-root--garage hsm-root--screen">
+      <div class="hsm-dock" role="toolbar" aria-label="Progress" style="left: 226px;">
+        <div class="hsm-lv" role="img" aria-label="Level 1, 0 of 600 XP to level 2">
+          <span class="hsm-shield hsm-lv__shield"><svg viewBox="0 0 36 42" aria-hidden="true"><path d="M4 7.5C10 3.2 26 3.2 32 7.5V22c0 7.8-6.6 13.4-14 16.4C10.6 35.4 4 29.8 4 22Z"></path></svg><b>1</b></span>
+          <span class="hsm-lv__txt"><span class="hsm-lv__k">Level</span><span class="hsm-lv__bar"><i style="transform: scaleX(0.02);"></i></span><span class="hsm-lv__xp">0 / 600 XP</span></span>
+        </div>
+        <button class="hsm-dk" data-open="modes"><kbd class="hsm-key">M</kbd><span>Play</span></button>
+        <button class="hsm-dk" data-open="races"><kbd class="hsm-key">R</kbd><span>Race</span></button>
+        <button class="hsm-dk" data-open="crates" aria-label="Crates"><kbd class="hsm-key">C</kbd><span>Crates</span><b class="hsm-dk__n hsm-dk__n--go"></b></button>
+        <button class="hsm-dk" data-open="challenges" aria-label="Challenges, 0 of 5 done"><kbd class="hsm-key">H</kbd><span>Challenges</span><b class="hsm-dk__n">0/5</b></button>
+        <button class="hsm-dk hsm-dk--ready" data-open="login" aria-label="Daily reward ready to claim"><kbd class="hsm-key">L</kbd><span>Daily</span><i class="hsm-dk__dot" aria-hidden="true"></i></button>
+      </div>
+      <section class="hsm-screen hsm-screen--login" role="dialog" aria-modal="true" aria-labelledby="hsm-title">
+      <header class="hsm-head">
+        <div class="hsm-title">
+          
+          <span class="hsm-title__key" aria-hidden="true">L</span>
+          <div><h2 id="hsm-title">Daily</h2><p class="hsm-title__sub">Drop in every day to move along the track. Miss a day and it starts over.</p></div>
+        </div>
+        <div class="hsm-head__r">
+          <div class="hsm-cash" aria-label="Cash"><span class="hsm-cash__tag">$</span><span class="hsm-cash__v">2,500</span></div>
+          <button class="hsm-back" data-hsm-nav="" data-act="close"><kbd class="hsm-key">Esc</kbd><span>Back</span></button>
+        </div>
+      </header>
+      <div class="hsm-body">
+      <div class="hsm-claim hsm-panel hsm-in" role="status"><p class="hsm-claim__lead">Day 1 of 7</p>
+        <h3 class="hsm-claim__big">$5,000</h3>
+        <button class="hsm-btn hsm-btn--go hsm-btn--wide" data-hsm-nav="" data-k="claim" data-act="claim" data-hsm-default=""><span>Claim</span><span class="hsm-btn__sub">Day 1 reward</span></button></div>
+      <ol class="hsm-days hsm-in" aria-label="Seven day track"><li class="hsm-day hsm-day--today">
+        <span class="hsm-day__n">Day 1</span>
+        <span class="hsm-day__ico"><i class="hsm-ri hsm-ri--cash" aria-hidden="true">$</i></span>
+        <span class="hsm-day__t">$5,000</span>
+        <span class="hsm-day__s">Cash</span>
+        
+        <span class="hsm-day__flag">Today</span>
+      </li><li class="hsm-day hsm-day--later">
+        <span class="hsm-day__n">Day 2</span>
+        <span class="hsm-day__ico"><i class="hsm-ri hsm-ri--boost" aria-hidden="true">2x</i></span>
+        <span class="hsm-day__t">2x cash</span>
+        <span class="hsm-day__s">10 minutes</span>
+        
+        
+      </li><li class="hsm-day hsm-day--later">
+        <span class="hsm-day__n">Day 3</span>
+        <span class="hsm-day__ico"><i class="hsm-ri hsm-ri--cash" aria-hidden="true">$</i></span>
+        <span class="hsm-day__t">$12,000</span>
+        <span class="hsm-day__s">Cash</span>
+        
+        
+      </li><li class="hsm-day hsm-day--later">
+        <span class="hsm-day__n">Day 4</span>
+        <span class="hsm-day__ico"><i class="hsm-ri hsm-ri--roll" aria-hidden="true"><svg viewBox="0 0 32 32" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M4 10.5 16 5l12 5.5v12L16 28 4 22.5Z"></path><path d="M4 10.5 16 16l12-5.5M16 16v12"></path><path d="m10 7.8 12 5.5" stroke-width="1.6"></path></svg></i></span>
+        <span class="hsm-day__t">Free roll</span>
+        <span class="hsm-day__s">Custom Paint Crate</span>
+        
+        
+      </li><li class="hsm-day hsm-day--later">
+        <span class="hsm-day__n">Day 5</span>
+        <span class="hsm-day__ico"><i class="hsm-ri hsm-ri--cash" aria-hidden="true">$</i></span>
+        <span class="hsm-day__t">$25,000</span>
+        <span class="hsm-day__s">Cash</span>
+        
+        
+      </li><li class="hsm-day hsm-day--later">
+        <span class="hsm-day__n">Day 6</span>
+        <span class="hsm-day__ico"><i class="hsm-ri hsm-ri--cash" aria-hidden="true">$</i></span>
+        <span class="hsm-day__t">$40,000</span>
+        <span class="hsm-day__s">Cash</span>
+        
+        
+      </li><li class="hsm-day hsm-day--later">
+        <span class="hsm-day__n">Day 7</span>
+        <span class="hsm-day__ico"><i class="hsm-ri hsm-ri--roll" aria-hidden="true"><svg viewBox="0 0 32 32" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M4 10.5 16 5l12 5.5v12L16 28 4 22.5Z"></path><path d="M4 10.5 16 16l12-5.5M16 16v12"></path><path d="m10 7.8 12 5.5" stroke-width="1.6"></path></svg></i></span>
+        <span class="hsm-day__t">Free roll</span>
+        <span class="hsm-day__s">Performance Car Crate</span>
+        
+        
+      </li></ol></div>
+      <footer class="hsm-keys" aria-hidden="true">
+        
+        <kbd class="hsm-key">↑</kbd><kbd class="hsm-key">↓</kbd><kbd class="hsm-key">←</kbd><kbd class="hsm-key">→</kbd><span>Move</span>
+        <kbd class="hsm-key">Enter</kbd><span>Select</span><kbd class="hsm-key">Esc</kbd><span class="hsm-keys__back">Back</span>
+      </footer></section>
+      <div class="hsm-cele" aria-live="assertive"></div></div>
+<div id="menu" class="hs-layer hs-menu" role="dialog" aria-modal="true"><div class="hs-mpanel"></div></div>
+<div id="fail"></div>
+<script>window.__hsErrors = []; addEventListener("error", function (e) { window.__hsErrors.push(String(e.message || e)); }); addEventListener("unhandledrejection", function (e) { window.__hsErrors.push(String(e.reason)); });</script>
+<script type="module" src="js/main.js?v=e170796853"></script>
+
+
+<div class="hs-layer hs-photo"><div class="hs-photo__frame" aria-hidden="true"></div>
+      <div class="hs-photo__bar"><div class="hs-photo__read" role="status"></div>
+  <div class="hs-hint">
+    <kbd class="hs-key">Drag</kbd><span>Orbit</span>
+    <kbd class="hs-key">Wheel</kbd><span>Distance</span>
+    <kbd class="hs-key">Z</kbd><kbd class="hs-key">X</kbd><span>Lens</span>
+    <kbd class="hs-key">[</kbd><kbd class="hs-key">]</kbd><span>Aperture</span>
+    <kbd class="hs-key">,</kbd><kbd class="hs-key">.</kbd><span>Time</span>
+    <kbd class="hs-key">G</kbd><span>Filter</span>
+    <kbd class="hs-key">-</kbd><kbd class="hs-key">=</kbd><span>Exposure</span>
+    <kbd class="hs-key">R</kbd><span>Rain</span>
+    <kbd class="hs-key">Enter</kbd><span>Save</span>
+    <kbd class="hs-key">H</kbd><span>Hide</span>
+    <kbd class="hs-key">Esc</kbd><span>Back</span>
+  </div></div>
+      <div class="hs-photo__note" role="status" aria-live="polite"></div></div></body></html>
