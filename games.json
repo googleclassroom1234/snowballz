@@ -1,0 +1,8 @@
+{
+  "games": [
+    { "id": "slope", "name": "Slope", "categories": ["Arcade"], "ranking": 1 },
+    { "id": "2048", "name": "2048", "categories": ["Puzzle"], "ranking": 2 },
+    { "id": "1v1.lol", "name": "1v1.lol", "categories": ["Shooter"], "ranking": 3 },
+    { "id": "highway-swerve", "name": "Highway Swerve", "categories": ["Racing", "Driving"], "ranking": 3, "added": "2026-11-24" }
+  ]
+}
