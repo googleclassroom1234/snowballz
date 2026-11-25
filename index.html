@@ -262,8 +262,7 @@ function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function norm(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()}
 function byId(id){return G.filter(function(g){return g.id===id})[0]}
-function art(g){return '<span class="art"><i>'+esc(g.name.charAt(0))+'</i><img alt="" loading="lazy" src="thumbs/'+encodeURIComponent(g.id)+'.webp" onerror="this.remove()"></span>'}
-function starBtn(id,name){var on=starred.indexOf(id)>-1;return '<button type="button" class="star" data-star="'+esc(id)+'" aria-pressed="'+on+'" aria-label="'+(on?'Unstar ':'Star ')+esc(name)+'"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg></button>'}
+function art(g){return '<span class="art"><i>'+esc(g.name.charAt(0))+'</i><img alt="" loading="lazy" src="thumbs/'+encodeURIComponent(g.id)+'.webp" onerror="this.remove()"></span>'}function starBtn(id,name){var on=starred.indexOf(id)>-1;return '<button type="button" class="star" data-star="'+esc(id)+'" aria-pressed="'+on+'" aria-label="'+(on?'Unstar ':'Star ')+esc(name)+'"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg></button>'}
 function cell(g){var c=document.createElement('div');c.className='cell';c.innerHTML='<a class="tile" href="Games/'+encodeURIComponent(g.id)+'/index.html" title="'+esc(g.name)+'"><span class="lift">'+art(g)+'</span><span class="name">'+esc(g.name)+'</span></a>'+starBtn(g.id,g.name);return c}
 
 function shelf(id,list){
