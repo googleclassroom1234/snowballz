@@ -6,14 +6,14 @@
       "name": "Slope",
       "categories": ["Arcade"],
       "ranking": 1,
-      "image": "thumbs/slope.png"
+      "image": "https://gametreexp.github.io/img/slope.webp"
     },
     {
       "id": "2048",
       "name": "2048",
       "categories": ["Puzzle"],
       "ranking": 2,
-      "image": "thumbs/2048.png"
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYqUoJjypgV7R6KI85QZoUHkbppfSeq8iPqtx_j4x70Q&s=10"
     },
     {
       "id": "1v1.lol",
