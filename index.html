@@ -141,6 +141,35 @@ svg.i{width:18px;height:18px;flex-shrink:0;fill:none;stroke:currentColor;stroke-
 .feature-meta{font-size:13px;color:rgba(255,255,255,.72)}
 @media(hover:hover) and (pointer:fine){.feature:hover{transform:translateY(-4px);box-shadow:inset 0 0 0 2px rgba(255,255,255,.18),0 22px 40px -18px rgba(0,0,0,.85)}.feature:hover .feature-art{filter:none;transform:scale(1.03)}}
 .btn-sm{height:36px;padding:0 16px;font-size:14px}
+
+.modal{position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(var(--shade),.6);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.modal-box{position:relative;width:min(420px,100%);max-height:calc(100vh - 32px);overflow:auto;padding:28px;border-radius:24px;background:var(--surface);border:1px solid var(--line-strong);box-shadow:0 30px 80px -20px rgba(0,0,0,.8)}
+.modal-box h3{margin:0 40px 6px 0;font-size:26px;font-weight:700;font-stretch:var(--display-stretch);letter-spacing:-.02em;line-height:1.1}
+.msub{color:var(--muted);font-size:14.5px;margin:0 0 16px}.modal-close{position:absolute;top:18px;right:18px}
+.modal-box label{display:block;margin-bottom:14px;font-size:13px;font-weight:600;color:var(--muted)}
+.modal-box input,.modal-box select{display:block;width:100%;height:46px;margin-top:6px;padding:0 16px;border-radius:14px;border:1px solid rgba(var(--wash),.12);background:var(--pill);color:var(--ink);font-size:15px;outline:0}
+.modal-box select option{background:var(--surface);color:var(--ink)}
+.modal-box input:focus,.modal-box select:focus{border-color:rgba(var(--wash),.3)}.modal-box form .btn{width:100%}
+.err{min-height:20px;margin:0 0 8px;font-size:13.5px;color:var(--red)}
+.link{display:block;margin-top:14px;color:var(--muted);text-decoration:underline}.link:hover{color:var(--ink)}
+.big{font-size:34px;font-weight:700;font-stretch:var(--display-stretch);margin:0 0 6px}
+.lb{list-style:none;margin:0;padding:0}.lb li{display:grid;grid-template-columns:28px 1fr auto;gap:10px;padding:10px 0;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}.lb .rk{color:var(--muted)}.lb .you{font-weight:700}.lb .tm{color:var(--ink-2)}
+.lb.plain li{grid-template-columns:1fr auto}
+.game-overlay{position:fixed;inset:0;z-index:500;display:flex;flex-direction:column;background:var(--bg)}
+.game-bar{display:flex;align-items:center;gap:8px;height:64px;padding:0 14px;background:var(--surface);border-bottom:1px solid var(--line)}
+.game-bar .btn{height:38px;font-size:14px;padding:0 15px}.game-title{flex:1;min-width:0;margin-left:6px;font-weight:700;font-stretch:var(--display-stretch);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.game-wrap{position:relative;flex:1;min-height:0;background:#000}.game-wrap iframe{display:block;width:100%;height:100%;border:0}
+.loader{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:radial-gradient(80% 60% at 50% 0%,rgba(255,255,255,.07),transparent 70%),#0a0b0d;color:#f7f9fb;transition:opacity .5s ease}
+.loader.out{opacity:0;pointer-events:none}
+.loader .spin{width:44px;height:44px;stroke-width:1.4;animation:sz-spin 6s linear infinite}
+@keyframes sz-spin{to{transform:rotate(360deg)}}
+.ld-label{font-size:13px;color:#bcc4cd}.ld-name{font-size:clamp(28px,5vw,56px);font-weight:700;font-stretch:112%;letter-spacing:-.025em;text-align:center;padding:0 24px;line-height:1.05}
+.ld-bar{width:min(260px,60vw);height:3px;border-radius:2px;background:rgba(235,242,250,.12);overflow:hidden;margin-top:6px}
+.ld-bar span{display:block;width:40%;height:100%;border-radius:2px;background:#f7f9fb;animation:sz-bar 1.3s cubic-bezier(.23,1,.32,1) infinite}
+@keyframes sz-bar{from{transform:translateX(-100%)}to{transform:translateX(250%)}}
+.ld-note{min-height:20px;font-size:13px;color:#97a1ac}
+@media(prefers-reduced-motion:reduce){.loader .spin,.ld-bar span{animation:none}.loader{transition:none}}
+.btn-sm{height:36px;padding:0 16px;font-size:14px}
 </style>
 </head>
 <body>
@@ -171,7 +200,7 @@ svg.i{width:18px;height:18px;flex-shrink:0;fill:none;stroke:currentColor;stroke-
     <a href="#" data-nav aria-current="page"><svg class="i" aria-hidden="true"><use href="#i-home"/></svg><span>Home</span></a>
     <a href="#" data-nav><svg class="i" aria-hidden="true"><use href="#i-grid"/></svg><span>Games</span></a>
     <a href="#" data-nav><svg class="i" aria-hidden="true"><use href="#i-play"/></svg><span>Challenge</span></a>
-    <a href="#" data-nav><svg class="i" aria-hidden="true"><use href="#i-trophy"/></svg><span>Leaderboard</span></a>
+    <a href="#" id="lb"><svg class="i" aria-hidden="true"><use href="#i-trophy"/></svg><span>Leaderboard</span></a>
   </nav></div>
   <div class="pod"><nav class="nav" aria-label="Main">
     <a href="#" data-nav><svg class="i" aria-hidden="true"><use href="#i-chat"/></svg><span>Chat</span></a>
@@ -182,6 +211,7 @@ svg.i{width:18px;height:18px;flex-shrink:0;fill:none;stroke:currentColor;stroke-
     <a href="#" data-nav><svg class="i" aria-hidden="true"><use href="#i-list"/></svg><span>Requests</span></a>
     <a href="#" data-nav><svg class="i" aria-hidden="true"><use href="#i-gear"/></svg><span>Settings</span></a>
   </nav></div>
+  <div class="side-end pod"><a class="me" id="me" href="#"><span class="me-av"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></span><span><b>Sign in</b><small>Save your play time</small></span></a></div>
 </aside>
 
 <main class="main" id="top">
@@ -262,7 +292,11 @@ function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function norm(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()}
 function byId(id){return G.filter(function(g){return g.id===id})[0]}
-function art(g){return '<span class="art"><i>'+esc(g.name.charAt(0))+'</i><img alt="" loading="lazy" src="thumbs/'+encodeURIComponent(g.id)+'.webp" onerror="this.remove()"></span>'}function starBtn(id,name){var on=starred.indexOf(id)>-1;return '<button type="button" class="star" data-star="'+esc(id)+'" aria-pressed="'+on+'" aria-label="'+(on?'Unstar ':'Star ')+esc(name)+'"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg></button>'}
+window.szCatalog=function(){return G};
+/* Icons: use the game's "img" from games.json when it has one; otherwise look for thumbs/<id>.webp, then .png, .jpg, .jpeg. */
+window.szNext=function(i){var l=['webp','png','jpg','jpeg'],n=(+i.dataset.n||0)+1;if(i.dataset.id&&n<l.length){i.dataset.n=n;i.src='thumbs/'+i.dataset.id+'.'+l[n]}else i.remove()};
+function art(g){var im=g.img?'src="'+esc(g.img)+'"':'src="thumbs/'+encodeURIComponent(g.id)+'.webp" data-id="'+encodeURIComponent(g.id)+'"';return '<span class="art"><i>'+esc(g.name.charAt(0))+'</i><img alt="" loading="lazy" '+im+' onerror="szNext(this)"></span>'}
+function starBtn(id,name){var on=starred.indexOf(id)>-1;return '<button type="button" class="star" data-star="'+esc(id)+'" aria-pressed="'+on+'" aria-label="'+(on?'Unstar ':'Star ')+esc(name)+'"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg></button>'}
 function cell(g){var c=document.createElement('div');c.className='cell';c.innerHTML='<a class="tile" href="Games/'+encodeURIComponent(g.id)+'/index.html" title="'+esc(g.name)+'"><span class="lift">'+art(g)+'</span><span class="name">'+esc(g.name)+'</span></a>'+starBtn(g.id,g.name);return c}
 
 function shelf(id,list){
@@ -340,8 +374,8 @@ $('#surprise').onclick=function(){$('#pick').hidden?roll():closePick()};
 (function(){
   var R=[{id:'highway-swerve',name:'Highway Swerve',meta:'Racing · Driving',img:'thumbs/highway-swerve.webp'},{id:'grand-theft-auto-vice-city',name:'Grand Theft Auto Vice City',meta:'Action',img:'thumbs/grand-theft-auto-vice-city-wide.webp'}],row=$('#new');
   R.forEach(function(g){
-    var a=document.createElement('a');a.className='feature wide in';a.href='Games/'+g.id+'/index.html';a.title=g.name;
-    a.innerHTML='<img alt="" decoding="async" class="feature-bg" src="'+g.img+'" onerror="this.remove()"><img alt="" decoding="async" class="feature-art" src="'+g.img+'" onerror="this.remove()"><span class="feature-text"><span class="feature-tag">New</span><span class="feature-name"></span><span class="feature-meta"></span></span>';
+    var b=g.img.replace(/^thumbs\//,'').replace(/\.webp$/,''),a=document.createElement('a');a.className='feature wide in';a.href='Games/'+g.id+'/index.html';a.title=g.name;
+    a.innerHTML='<img alt="" decoding="async" class="feature-bg" src="'+g.img+'" data-id="'+b+'" onerror="szNext(this)"><img alt="" decoding="async" class="feature-art" src="'+g.img+'" data-id="'+b+'" onerror="szNext(this)"><span class="feature-text"><span class="feature-tag">New</span><span class="feature-name"></span><span class="feature-meta"></span></span>';
     a.querySelector('.feature-name').textContent=g.name;a.querySelector('.feature-meta').textContent=g.meta;row.appendChild(a)})
 })();
 
@@ -363,7 +397,7 @@ function mk(any){var z=Math.random();return{x:Math.random()*W,y:any?Math.random(
 function size(){if(!cv)return;var d=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;cx.setTransform(d,0,0,d,0,0);var n=Math.min(150,Math.round(W*H/9500));while(fl.length<n)fl.push(mk(true));fl.length=n}
 function tick(ts){
   if(!cv)return;
-  if(document.hidden){last=0;raf=setTimeout(function(){raf=requestAnimationFrame(tick)},500);return}
+  if(document.hidden||document.body.classList.contains('gv-in-game')){last=0;raf=setTimeout(function(){raf=requestAnimationFrame(tick)},500);return}
   var dt=last?Math.min(.05,(ts-last)/1000):.016,rgb=document.documentElement.dataset.theme==='light'?'120,134,150':'247,249,251',p=push;last=ts;push=0;
   cx.clearRect(0,0,W,H);
   fl.forEach(function(f){
@@ -387,7 +421,7 @@ function init(){
   if(q){$('#q').value=S.q=q.slice(0,80);$('#clear').hidden=false;lib()}
 }
 fetch('games.json',{cache:'no-cache'}).then(function(r){return r.ok?r.json():Promise.reject()}).then(function(d){
-  var l=d.games.filter(function(g){return !g.hidden&&!g.staging}).map(function(g){return{id:g.id,name:g.name,cats:g.categories||[],rank:g.ranking||0,added:g.added||''}});
+  var l=d.games.filter(function(g){return !g.hidden&&!g.staging}).map(function(g){return{id:g.id,name:g.name,cats:g.categories||[],rank:g.ranking||0,added:g.added||'',img:g.img||''}});
   if(l.length)G=l;
 }).catch(function(){}).then(init);
 })();
@@ -396,6 +430,100 @@ fetch('games.json',{cache:'no-cache'}).then(function(r){return r.ok?r.json():Pro
 <script>
 /* If you add assets/polytrack-stage.webp it is laid over the drawn track; until then the drawing shows. */
 (function(){var t=new Image();t.onload=function(){var svg=document.querySelector('.stage-art svg');if(!svg)return;var i=document.createElementNS('http://www.w3.org/2000/svg','image');i.setAttribute('href',t.src);i.setAttribute('x','0');i.setAttribute('y','110');i.setAttribute('width','1000');i.setAttribute('height','430');i.setAttribute('preserveAspectRatio','xMidYMid slice');i.style.filter='grayscale(1) brightness(.82) contrast(1.08)';svg.appendChild(i)};t.src='assets/polytrack-stage.webp'})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+/* Loading screen and game player, accounts, play time per game and the leaderboard (Supabase). Run schema.sql first. */
+(function(){
+'use strict';
+var SUPA_URL='https://YOUR-PROJECT.supabase.co',SUPA_KEY='sb_publishable_KvMukwUQ9yXm423hBnPP2A_W3ILJ8aG',EMAIL_DOMAIN='snowballz.app';
+function gameUrl(id){return 'Games/'+encodeURIComponent(id)+'/index.html'}
+var $=function(s,r){return(r||document).querySelector(s)};
+function el(t,c,h){var e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e}
+var X='<svg class="i" aria-hidden="true"><use href="#i-close"/></svg>';
+var sb=(window.supabase&&SUPA_URL.indexOf('YOUR-')<0)?supabase.createClient(SUPA_URL,SUPA_KEY):null,user=null,uname='';
+function fmt(s){s=Math.round(s||0);var h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?h+'h '+m+'m':m?m+'m':s+'s'}
+function games(){return window.szCatalog?szCatalog():[]}
+function gname(id){var g=games().filter(function(x){return x.id===id})[0];return g?g.name:id}
+
+function modal(html){
+  var m=el('div','modal','<div class="modal-box" role="dialog" aria-modal="true"><button class="icon-btn modal-close" type="button" aria-label="Close">'+X+'</button>'+html+'</div>');
+  function k(e){if(e.key==='Escape'&&!go)m.close()}
+  m.close=function(){m.remove();document.removeEventListener('keydown',k)};
+  document.addEventListener('keydown',k);
+  m.addEventListener('click',function(e){if(e.target===m||e.target.closest('.modal-close'))m.close()});
+  document.body.appendChild(m);var f=$('input',m);if(f)f.focus();return m}
+
+function authModal(tab){
+  if(!sb)return modal('<h3>Accounts are off</h3><p class="msub">Put your Supabase project URL at the top of the last script in this page to turn on accounts, play time and the leaderboard.</p>');
+  var up=tab==='up',m=modal('<h3>'+(up?'Create account':'Sign in')+'</h3><p class="msub">Your play time on every game is saved to your account.</p><form><label>Username<input name="u" required minlength="3" maxlength="20" autocomplete="username"></label><label>Password<input name="p" type="password" required minlength="6" autocomplete="'+(up?'new':'current')+'-password"></label><p class="err" role="status"></p><button class="btn btn-red" type="submit">'+(up?'Create account':'Sign in')+'</button></form><button class="link" type="button">'+(up?'Have an account? Sign in':'New here? Create an account')+'</button>');
+  $('.link',m).onclick=function(){m.close();authModal(up?'in':'up')};
+  $('form',m).onsubmit=async function(e){
+    e.preventDefault();var f=e.target,u=f.u.value.trim().toLowerCase().replace(/[^a-z0-9_]/g,''),err=$('.err',m);
+    if(u.length<3){err.textContent='Use 3 or more letters, numbers or underscores.';return}
+    var email=u+'@'+EMAIL_DOMAIN,r=up?await sb.auth.signUp({email:email,password:f.p.value,options:{data:{username:u}}}):await sb.auth.signInWithPassword({email:email,password:f.p.value});
+    if(r.error){err.textContent=!up?'Wrong username or password.':/registered|already|duplicate/i.test(r.error.message)?'That username is taken.':r.error.message;return}
+    m.close()}}
+
+async function profile(){
+  var m=modal('<h3></h3><p class="msub">Total play time</p><p class="big">…</p><p class="msub">By game</p><ol class="lb plain"><li>Loading…</li></ol><button class="btn" type="button" style="margin-top:18px">Sign out</button>');
+  $('h3',m).textContent=uname;$('.btn',m).onclick=function(){sb.auth.signOut();m.close()};
+  var r=await sb.rpc('sz_my_games'),ol=$('.lb',m),rows=r.data||[],tot=0;ol.replaceChildren();
+  rows.forEach(function(x){tot+=x.secs;var li=el('li','','<span></span><span class="tm"></span>');li.children[0].textContent=gname(x.game_id);li.children[1].textContent=fmt(x.secs);ol.appendChild(li)});
+  if(!rows.length)ol.appendChild(el('li','','Play a game to start your time.'));
+  $('.big',m).textContent=fmt(tot)}
+
+async function board(){
+  var m=modal('<h3>Leaderboard</h3><p class="msub">Most play time</p><label>Game<select><option value="">All games</option></select></label><ol class="lb"><li>Loading…</li></ol>'),ol=$('.lb',m),sel=$('select',m);
+  games().slice().sort(function(a,b){return a.name.localeCompare(b.name)}).forEach(function(g){var o=el('option');o.value=g.id;o.textContent=g.name;sel.appendChild(o)});
+  async function load(){
+    ol.replaceChildren(el('li','','Loading…'));
+    if(!sb){ol.replaceChildren(el('li','','The leaderboard turns on once accounts are set up.'));return}
+    var r=await sb.rpc('sz_leaderboard',{p_game:sel.value||null,p_limit:25});ol.replaceChildren();
+    if(r.error||!r.data||!r.data.length){ol.appendChild(el('li','',r.error?'Could not load the leaderboard.':'No times yet. Play to get on it.'));return}
+    r.data.forEach(function(row,i){
+      var li=el('li',row.username===uname?'you':'','<span class="rk"></span><span class="nm"></span><span class="tm"></span>');
+      li.children[0].textContent=i+1;li.children[1].textContent=row.username;li.children[2].textContent=fmt(row.secs);ol.appendChild(li)})}
+  sel.onchange=load;load()}
+
+/* Play time: a row is saved when a game opens and its end time is refreshed every 30 seconds while the tab is
+   visible, so a closed phone tab loses at most 30 seconds. Each row names its game, so time is kept per game. */
+var go=null,sess=null,beat=0;
+function startSess(id){
+  if(!sb||!user)return;var at=new Date().toISOString(),me={game:id,at:at,row:null};sess=me;
+  sb.from('play_sessions').insert({user_id:user.id,game_id:id,started_at:at,ended_at:at}).select('id').single().then(function(r){if(r.data)me.row=r.data.id});
+  beat=setInterval(pulse,30000)}
+function pulse(){if(sess&&sess.row&&!document.hidden)sb.from('play_sessions').update({ended_at:new Date().toISOString()}).eq('id',sess.row).then(function(){})}
+function endSess(){clearInterval(beat);pulse();sess=null}
+
+/* The player: a loading screen shows for at least 1.4 seconds, stays until the game page has loaded, then fades out. */
+function openGame(id,name){
+  if(go)closeGame();
+  go=el('div','game-overlay','<div class="game-bar"><button class="btn" type="button" data-b>Back</button><span class="game-title"></span><button class="btn" type="button" data-f>Fullscreen</button></div><div class="game-wrap"><iframe allowfullscreen allow="autoplay; fullscreen *; gamepad *;" title=""></iframe><div class="loader" role="status"><svg class="i spin" aria-hidden="true"><use href="#i-flake"/></svg><p class="ld-label">Now opening</p><p class="ld-name"></p><div class="ld-bar"><span></span></div><p class="ld-note"></p></div></div>');
+  var fr=$('iframe',go),ld=$('.loader',go),t0=Date.now(),done=false;
+  $('.game-title',go).textContent=name;$('.ld-name',go).textContent=name;$('.ld-note',go).textContent=user?'':'Sign in to save your play time.';fr.title=name;
+  function reveal(){if(done)return;done=true;setTimeout(function(){ld.classList.add('out');setTimeout(function(){ld.remove()},500)},Math.max(0,1400-(Date.now()-t0)))}
+  fr.addEventListener('load',reveal);setTimeout(reveal,15000);
+  setTimeout(function(){if(!done)$('.ld-label',ld).textContent='Still loading…'},8000);
+  $('[data-b]',go).onclick=closeGame;
+  $('[data-f]',go).onclick=function(){var w=$('.game-wrap',go);(w.requestFullscreen||w.webkitRequestFullscreen).call(w)};
+  fr.src=gameUrl(id);document.body.appendChild(go);document.body.classList.add('gv-in-game');document.body.style.overflow='hidden';startSess(id)}
+function closeGame(){if(!go)return;endSess();go.remove();go=null;document.body.classList.remove('gv-in-game');document.body.style.overflow=''}
+addEventListener('pagehide',function(){if(sess)pulse()});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&go&&!$('.modal'))closeGame()});
+document.addEventListener('click',function(e){
+  var a=e.target.closest('a[href^="Games/"]');if(!a||e.metaKey||e.ctrlKey||e.shiftKey||e.button)return;
+  e.preventDefault();e.stopImmediatePropagation();var pk=$('#pick');if(pk)pk.hidden=true;
+  var id=decodeURIComponent((/^Games\/([^\/]+)\//.exec(a.getAttribute('href'))||[0,''])[1]);
+  openGame(id,a.title||($('.name',a)||{}).textContent||id)},true);
+
+/* Sidebar */
+function paintMe(){var me=$('#me');$('b',me).textContent=user?uname:'Sign in';$('small',me).textContent=user?'Your profile':'Save your play time'}
+$('#me').onclick=function(e){e.preventDefault();user?profile():authModal('in')};
+$('#lb').onclick=function(e){e.preventDefault();board()};
+if(sb)sb.auth.onAuthStateChange(function(ev,s){
+  user=s?s.user:null;uname=user?((user.user_metadata&&user.user_metadata.username)||user.email.split('@')[0]):'';paintMe()});
+})();
 </script>
 </body>
 </html>
