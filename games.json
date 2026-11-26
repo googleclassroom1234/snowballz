@@ -44,7 +44,7 @@
     {"id":"cuphead","name":"Cuphead","file":"Cuphead","categories":["Platformer"],"ranking":41,"image":""},
     {"id":"drift-boss","name":"Drift Boss","file":"Drift-Boss","categories":["Driving"],"ranking":42,"image":""},
     {"id":"drift-hunters","name":"Drift Hunters","file":"Drift-Hunters","categories":["Driving"],"ranking":43,"image":""},
-    {"id":"drive-mad","name":"Drive Mad","categories":["Driving"],"ranking":44,"image":"https://gametreexp.github.io/strongdog3/img/drive%20mad%20200%20levels.jpg"},
+    {"id":"drive-mad","name":"Drive Mad","categories":["Driving"],"ranking":44,"image":"https://raw.githubusercontent.com/googleclassroom1234/snowballz/refs/heads/main/thumbs/drive-mad.png"},
     {"id":"escape-road","name":"Escape Road","file":"Escape-Road","categories":["Driving"],"ranking":45,"image":""},
     {"id":"escape-road-2","name":"Escape Road 2","file":"Escape-Road-2","categories":["Driving"],"ranking":46,"image":""},
     {"id":"fears-to-fathom-home-alone","name":"Fears to Fathom: Home Alone","file":"Fears-to-Fathom:-Home-Alone","categories":["Horror"],"ranking":47,"image":""},
