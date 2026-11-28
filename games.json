@@ -21,7 +21,7 @@
     {"id":"bank-robbery-2","name":"Bank Robbery 2","file":"Bank-Robbery-2","categories":["Shooter"],"ranking":19,"image":""},
     {"id":"bank-robbery-3","name":"Bank Robbery 3","file":"Bank-Robbery-3","categories":["Shooter"],"ranking":20,"image":""},
     {"id":"baseball-bros","name":"Baseball Bros","file":"Baseball-Bros","categories":["Sports"],"ranking":21,"image":""},
-    {"id":"basket-bros","name":"Basket Bros","file":"Basket-Bros","categories":["Sports"],"ranking":22,"image":""},
+    {"id":"Basket-Bros","name":"Basket Bros","file":"Basket-Bros","categories":["Sports"],"ranking":22,"image":""},
     {"id":"basket-random","name":"Basket Random","file":"Basket-Random","categories":["Sports"],"ranking":23,"image":""},
     {"id":"basketball-stars","name":"Basketball Stars","file":"Basketball-Stars","categories":["Sports"],"ranking":24,"image":""},
     {"id":"bendy-and-the-ink-machine","name":"Bendy and the Ink Machine","file":"Bendy-And-The-Ink-Machine","categories":["Horror"],"ranking":25,"image":""},
